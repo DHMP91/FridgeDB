@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import sys
 import logging
 from scanner.waveshare_epd import epd7in5_V2
 import time

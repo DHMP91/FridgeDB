@@ -29,6 +29,11 @@ OR
 ```
 
 
+```
+python -m scanner.main
+```
+
+
 
 
 
