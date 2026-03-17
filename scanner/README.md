@@ -34,6 +34,16 @@ git clone https://github.com/DHMP91/FridgeDB.git
 python -m scanner.main
 ```
 
+Connecting to wireless scanner NT1228BC to Raspberry Pi Zero 2W
+```
+sudo apt reinstall bluez bluez-firmware pi-bluetooth
+sudo systemctl restart bluetooth
+bluetoothctl
+power on
+scan on
+connect XX:XX:XX:XX:XX:XX  <---- address of scanner shown in scan list 
+```
+
 
 
 
