@@ -41,9 +41,12 @@ class ScannerReader:
                     elif data.scancode in self.scancodes:
                         barcode += self.scancodes[data.scancode]
 
-scannerReader = ScannerReader()
-device = scannerReader.find_scanner("NT CCD barcode scanner")
-logging.info(scannerReader.read_scanner(device))
+scanner_name = "NT CCD barcode scanner"
+scanner_reader = ScannerReader()
+device = scanner_reader.find_scanner(scanner_name)
+if device == None:
+    raise Exception(f"No scanner found {scanner_name}")
+logging.info(scanner_reader.read_scanner(device))
 
 
 # try:
