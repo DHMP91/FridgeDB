@@ -28,8 +28,9 @@ OR
   sudo pip3 install -r requirments-scanner.txt
 ```
 
-
+Run
 ```
+git clone https://github.com/DHMP91/FridgeDB.git
 python -m scanner.main
 ```
 
