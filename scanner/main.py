@@ -42,7 +42,7 @@ class ScannerReader:
                         barcode += self.scancodes[data.scancode]
 
 scannerReader = ScannerReader()
-device = ScannerReader("NT CCD barcode scanner")
+device = scannerReader.find_scanner("NT CCD barcode scanner")
 print(scannerReader.read_scanner(device))
 
 
