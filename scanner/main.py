@@ -34,12 +34,11 @@ class ScannerReader:
         for event in device.read_loop():
             if event.type == evdev.ecodes.EV_KEY:
                 data = evdev.categorize(event)
-                if data.keystate == 2: # Key Up
+                if data.keystate == 0: # Key Up
                     if data.scancode == 28: # Enter key
                         barcode = ""
                         return barcode
                     elif data.scancode in self.scancodes:
-                        logging.info(data.scancode)
                         barcode += self.scancodes[data.scancode]
 
 scannerReader = ScannerReader()
