@@ -39,11 +39,12 @@ class ScannerReader:
                         barcode = ""
                         return barcode
                     elif data.scancode in self.scancodes:
+                        logging.info(data.scancode)
                         barcode += self.scancodes[data.scancode]
 
 scannerReader = ScannerReader()
 device = scannerReader.find_scanner("NT CCD barcode scanner")
-print(scannerReader.read_scanner(device))
+logging.info(scannerReader.read_scanner(device))
 
 
 # try:
