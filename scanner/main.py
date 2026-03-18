@@ -36,7 +36,6 @@ class ScannerReader:
                 data = evdev.categorize(event)
                 if data.keystate == 0: # Key Up
                     if data.scancode == 28: # Enter key
-                        barcode = ""
                         return barcode
                     elif data.scancode in self.scancodes:
                         barcode += self.scancodes[data.scancode]
@@ -44,8 +43,15 @@ class ScannerReader:
 scanner_name = "NT CCD barcode scanner"
 scanner_reader = ScannerReader()
 device = scanner_reader.find_scanner(scanner_name)
+for i in range(3):
+    if device == None:
+        logging.info(f"{scanner_name} not found. Trying again in 10s...")
+        time.sleep(10)
+        device = scanner_reader.find_scanner(scanner_name)
+
 if device == None:
-    raise Exception(f"No scanner found {scanner_name}")
+    raise Exception(f"{scanner_name} was not found after 3 attemps")
+
 logging.info(scanner_reader.read_scanner(device))
 
 
