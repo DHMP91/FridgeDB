@@ -42,10 +42,12 @@ try:
     epd.init()
     epd.Clear()
 
+    barcode_label = 'Bar Code Scanned:'
+    num_spacer = 5
     Himage = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
     draw = ImageDraw.Draw(Himage)
-    draw.text((10, 0), 'Bar Code Scanned:', font = font24, fill = 0)
-    draw.text((20, 0), barcode, font = font24, fill = 0)
+    draw.text((10, 0), barcode_label, font = font24, fill = 0)
+    draw.text((len(barcode_label) + num_spacer, 0), barcode, font = font24, fill = 0)
     draw.line((20, 50, 70, 100), fill = 0)
     epd.display(epd.getbuffer(Himage))
     time.sleep(2)
