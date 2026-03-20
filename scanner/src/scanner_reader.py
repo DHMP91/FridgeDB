@@ -1,12 +1,32 @@
 import evdev
-from evdev import InputDevice, list_devices
+from evdev import InputDevice, list_devices, ecodes
 
 class ScannerReader:
-    scancodes = {
-        2:'1', 3:'2', 4:'3', 5:'4', 6:'5', 7:'6', 8:'7', 9:'8', 10:'9', 11:'0',
-        30:'a', 31:'s', 32:'d', 33:'f', 34:'g', 35:'h', 36:'j', 37:'k', 38:'l',
-        44:'z', 45:'x', 46:'c', 47:'v', 48:'b', 49:'n', 50:'m',
-        28:'ENTER'
+    scancodes_to_char = {
+        # Letters (lowercase for simplicity)
+        ecodes.KEY_A: 'a', ecodes.KEY_B: 'b', ecodes.KEY_C: 'c',
+        ecodes.KEY_D: 'd', ecodes.KEY_E: 'e', ecodes.KEY_F: 'f',
+        ecodes.KEY_G: 'g', ecodes.KEY_H: 'h', ecodes.KEY_I: 'i',
+        ecodes.KEY_J: 'j', ecodes.KEY_K: 'k', ecodes.KEY_L: 'l',
+        ecodes.KEY_M: 'm', ecodes.KEY_N: 'n', ecodes.KEY_O: 'o',
+        ecodes.KEY_P: 'p', ecodes.KEY_Q: 'q', ecodes.KEY_R: 'r',
+        ecodes.KEY_S: 's', ecodes.KEY_T: 't', ecodes.KEY_U: 'u',
+        ecodes.KEY_V: 'v', ecodes.KEY_W: 'w', ecodes.KEY_X: 'x',
+        ecodes.KEY_Y: 'y', ecodes.KEY_Z: 'z',
+        # Numbers
+        ecodes.KEY_0: '0', ecodes.KEY_1: '1', ecodes.KEY_2: '2',
+        ecodes.KEY_3: '3', ecodes.KEY_4: '4', ecodes.KEY_5: '5',
+        ecodes.KEY_6: '6', ecodes.KEY_7: '7', ecodes.KEY_8: '8',
+        ecodes.KEY_9: '9',
+        
+        # Other keys (add more as needed)
+        ecodes.KEY_SPACE: ' ',
+        # ecodes.KEY_ENTER: '\n',
+        ecodes.KEY_BACKSPACE: '<BS>', # Special representation
+        ecodes.KEY_TAB: '\t',
+        ecodes.KEY_DOT: '.',
+        ecodes.KEY_COMMA: ',',
+        ecodes.KEY_SLASH: '/',
     }
 
     def find_scanner(self, scanner_name):
@@ -23,5 +43,6 @@ class ScannerReader:
                 if data.keystate == 0: # Key Up
                     if data.scancode == 28: # Enter key
                         return barcode
-                    elif data.scancode in self.scancodes:
-                        barcode += self.scancodes[data.scancode]
+                    elif data.scancode in self.alphabet_map:
+                        barcode += self.scancodes_to_char[data.scancode]
+                    
