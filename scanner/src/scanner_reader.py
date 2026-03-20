@@ -43,6 +43,6 @@ class ScannerReader:
                 if data.keystate == 0: # Key Up
                     if data.scancode == 28: # Enter key
                         return barcode
-                    elif data.scancode in self.alphabet_map:
+                    elif data.scancode in self.scancodes_to_char:
                         barcode += self.scancodes_to_char[data.scancode]
                     
