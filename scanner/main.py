@@ -3,7 +3,7 @@
 
 import logging
 import os
-import queue
+from queue import Queue
 import time
 import threading
 from scanner.waveshare_epd import epd7in5_V2
@@ -12,7 +12,7 @@ from PIL import Image,ImageDraw,ImageFont
 logging.basicConfig(level=logging.INFO)
 
 
-def start_scanner(q):
+def start_scanner(q: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
     device = scanner_reader.find_scanner(scanner_name)
@@ -31,18 +31,18 @@ def start_scanner(q):
     while True:
         barcode = scanner_reader.read_scanner(device)
         logging.info(f"barcode scanner: {barcode}")
+        q.put(barcode)
 
 
-def display(q):
+def display(q: Queue):
     try:
         while True:
             # Loop until something is put for display
-            barcode = q.get(timeout=1) 
-            while barcode is None:
+            while q.empty():
                 time.sleep(1)
-                barcode = q.get(timeout=1) 
 
             # Display the bar code
+            barcode = q.get()
             picdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pic')
             font24 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 24)
             
@@ -69,7 +69,7 @@ def display(q):
     
 # Start listening to scan and display
 try:
-    q = queue.Queue()
+    q = Queue()
     scanner_thread = threading.Thread(target=start_scanner, args=(q,), daemon=True, name='Scanner-')
     display_thread = threading.Thread(target=display, args=(q,), daemon=True, name='Display-')
     scanner_thread.start()
