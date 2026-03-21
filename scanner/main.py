@@ -1,8 +1,8 @@
 import asyncio
 import sys
 import logging
-from queue import Queue
 import time
+from asyncio import Queue
 from scanner.waveshare_epd import epd7in5_V2
 from scanner.src.scanner_reader import ScannerReader, ScannerNotFoundException
 from scanner.src.display_barcode import DisplayBarCode
