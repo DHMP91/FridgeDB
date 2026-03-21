@@ -1,5 +1,10 @@
-import evdev
-from evdev import InputDevice, list_devices, ecodes
+import sys
+from typing import Union
+if sys.platform.startswith('linux'):
+    import evdev # pyright: ignore[reportMissingImports] # pylint: disable=import-error
+    from evdev import InputDevice, list_devices, ecodes # pyright: ignore[reportMissingImports] # pylint: disable=import-error
+else:
+    raise OSError("This script is Linux-only")
 
 class ScannerReader:
     scancodes_to_char = {
@@ -18,7 +23,6 @@ class ScannerReader:
         ecodes.KEY_3: '3', ecodes.KEY_4: '4', ecodes.KEY_5: '5',
         ecodes.KEY_6: '6', ecodes.KEY_7: '7', ecodes.KEY_8: '8',
         ecodes.KEY_9: '9',
-        
         # Other keys (add more as needed)
         ecodes.KEY_SPACE: ' ',
         # ecodes.KEY_ENTER: '\n',
@@ -29,13 +33,14 @@ class ScannerReader:
         ecodes.KEY_SLASH: '/',
     }
 
-    def find_scanner(self, scanner_name):
+    def find_scanner(self, scanner_name: str) -> InputDevice:
         devices = [InputDevice(path) for path in list_devices()]
         for device in devices:
             if device.name == scanner_name:
                 return device
+        return None
 
-    def read_scanner(self, device):
+    def read_scanner(self, device: InputDevice) -> Union[None, str]:
         barcode = ""
         for event in device.read_loop():
             if event.type == evdev.ecodes.EV_KEY:
@@ -45,4 +50,7 @@ class ScannerReader:
                         return barcode
                     elif data.scancode in self.scancodes_to_char:
                         barcode += self.scancodes_to_char[data.scancode]
-                    
+        return None
+
+class ScannerNotFoundException(Exception):
+    """ Raise when scanner could not be found"""
