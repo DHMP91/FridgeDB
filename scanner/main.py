@@ -21,7 +21,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
         if device is None:
             attempts -= 1
             logging.info("%s not found. Trying again in %s s...", scanner_name, delay)
-            time.sleep(delay)
+            await asyncio.sleep(delay)
             device = scanner_reader.find_scanner(scanner_name)
         else:
             logging.info("Scanner %s found!", scanner_name)
@@ -34,18 +34,16 @@ async def barcode_scanner_provider(q_barcode: Queue):
         barcode = scanner_reader.read_scanner(device)
         logging.info("barcode scanner: %s", barcode)
         await q_barcode.put(barcode)
+        await asyncio.sleep(1)
 
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
     while True:
-        # Loop until something is put for display
-        while await q_barcode.empty():
-            time.sleep(1)
-
         # Display the bar code
         barcode = await q_barcode.get()
         logging.info("Updateing screen with barcode: %s", barcode)
         disp_instance.barcode_update(barcode)
+        await asyncio.sleep(1)
 
 
 async def main():
