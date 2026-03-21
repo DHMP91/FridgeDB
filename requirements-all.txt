@@ -1,3 +1,4 @@
+asyncio
 pillow
 numpy
 mypy

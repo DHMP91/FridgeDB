@@ -1,15 +1,15 @@
+import asyncio
 import sys
 import logging
 from queue import Queue
 import time
-import threading
 from scanner.waveshare_epd import epd7in5_V2
 from scanner.src.scanner_reader import ScannerReader, ScannerNotFoundException
 from scanner.src.display_barcode import DisplayBarCode
 logging.basicConfig(level=logging.INFO)
 
 
-def barcode_scanner_provider(q_barcode: Queue):
+async def barcode_scanner_provider(q_barcode: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
 
@@ -36,7 +36,7 @@ def barcode_scanner_provider(q_barcode: Queue):
         q_barcode.put(barcode)
 
 
-def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
+async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
     while True:
         # Loop until something is put for display
         while q_barcode.empty():
@@ -47,29 +47,49 @@ def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
         logging.info("Updateing screen with barcode: %s", barcode)
         disp_instance.barcode_update(barcode)
 
-try:
-    logging.info("init and Clear")
-    epd = epd7in5_V2.EPD()
-    display_instance = DisplayBarCode(epd)
 
-    q = Queue()
-    scanner_thread = threading.Thread(
-        target=barcode_scanner_provider,
-        args=(q,),
-        daemon=True,
-        name='Scanner-'
-    )
-    display_thread = threading.Thread(
-        target=barcode_display_consumer,
-        args=(q,display_instance,),
-        daemon=True,
-        name='Display-'
-    )
-    scanner_thread.start()
-    display_thread.start()
-    display_thread.join()
-    scanner_thread.join()
-except KeyboardInterrupt:
-    logging.info("ctrl + c:")
-    epd7in5_V2.epdconfig.module_exit(cleanup=True) #pylint: disable=no-member
-    sys.exit()
+async def main():
+    try:
+        logging.info("init and Clear")
+        epd = epd7in5_V2.EPD()
+        display_instance = DisplayBarCode(epd)
+
+        q = Queue()
+        # Run both tasks concurrently
+        await asyncio.gather(
+            barcode_scanner_provider(q),
+            barcode_display_consumer(q, display_instance)
+        )
+    except KeyboardInterrupt:
+        logging.info("ctrl + c:")
+        epd7in5_V2.epdconfig.module_exit(cleanup=True) #pylint: disable=no-member
+        sys.exit()
+
+# try:
+#     # logging.info("init and Clear")
+#     # epd = epd7in5_V2.EPD()
+#     # display_instance = DisplayBarCode(epd)
+
+#     # q = Queue()
+#     # scanner_thread = threading.Thread(
+#     #     target=barcode_scanner_provider,
+#     #     args=(q,),
+#     #     daemon=True,
+#     #     name='Scanner-'
+#     # )
+#     # display_thread = threading.Thread(
+#     #     target=barcode_display_consumer,
+#     #     args=(q,display_instance,),
+#     #     daemon=True,
+#     #     name='Display-'
+#     # )
+#     # scanner_thread.start()
+#     # display_thread.start()
+#     # display_thread.join()
+#     # scanner_thread.join()
+# except KeyboardInterrupt:
+#     logging.info("ctrl + c:")
+#     epd7in5_V2.epdconfig.module_exit(cleanup=True) #pylint: disable=no-member
+#     sys.exit()
+
+asyncio.run(main())
