@@ -31,10 +31,11 @@ async def barcode_scanner_provider(q_barcode: Queue):
 
     # Keep listening for barcode scan and push to queue
     while True:
-        barcode = scanner_reader.read_scanner(device)
+        barcode = await asyncio.to_thread(
+            scanner_reader.read_scanner, device
+        )
         logging.info("barcode scanner: %s", barcode)
         await q_barcode.put(barcode)
-        await asyncio.sleep(1)
 
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
@@ -42,8 +43,9 @@ async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCo
         # Display the bar code
         barcode = await q_barcode.get()
         logging.info("Updateing screen with barcode: %s", barcode)
-        disp_instance.barcode_update(barcode)
-        await asyncio.sleep(1)
+        barcode = await asyncio.to_thread(
+            disp_instance.barcode_update, barcode
+        )
 
 
 async def main():
