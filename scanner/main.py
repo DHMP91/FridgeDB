@@ -2,17 +2,16 @@
 # -*- coding:utf-8 -*-
 
 import logging
-import os
 from queue import Queue
 import time
 import threading
 from scanner.waveshare_epd import epd7in5_V2
 from scanner.src.scanner_reader import ScannerReader
-from PIL import Image,ImageDraw,ImageFont
+from scanner.src.display_barcode import DisplayBarCode
 logging.basicConfig(level=logging.INFO)
 
 
-def start_scanner(q: Queue):
+def barcode_scanner_provider(q: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
     device = scanner_reader.find_scanner(scanner_name)
@@ -34,50 +33,31 @@ def start_scanner(q: Queue):
         q.put(barcode)
 
 
-def display(q: Queue):
-    try:
-        while True:
-            # Loop until something is put for display
-            while q.empty():
-                time.sleep(1)
+def barcode_display_consumer(q: Queue, display_instance: DisplayBarCode):
+    while True:
+        # Loop until something is put for display
+        while q.empty():
+            time.sleep(1)
 
-            # Display the bar code
-            barcode = q.get()
-            picdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pic')
-            font24 = ImageFont.truetype(os.path.join(picdir, 'Font.ttc'), 24)
-            
-            logging.info("Scanner Demo")
-            epd = epd7in5_V2.EPD()
-            
-            logging.info("init and Clear")
-            epd.init()
-            epd.Clear()
+        # Display the bar code
+        barcode = q.get()
+        logging.info(f"Updateing screen with barcode: {barcode}")
+        display_instance.barcode_update(barcode)
 
-            barcode_label = 'Bar Code Scanned:'
-            num_spacer = 5
-            Himage = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
-            draw = ImageDraw.Draw(Himage)
-            draw.text((10, 0), f'{barcode_label}: {barcode}', font = font24, fill = 0)
-            draw.line((20, 50, 70, 100), fill = 0)
-            epd.display(epd.getbuffer(Himage))
-            time.sleep(10)
 
-            logging.info("Goto Sleep...")
-            epd.sleep()
-    finally:  
-        epd7in5_V2.epdconfig.module_exit(cleanup=True)
-    
-# Start listening to scan and display
 try:
+    logging.info("init and Clear")
+    epd = epd7in5_V2.EPD()
+    display_instance = DisplayBarCode(epd)
+
     q = Queue()
-    scanner_thread = threading.Thread(target=start_scanner, args=(q,), daemon=True, name='Scanner-')
-    display_thread = threading.Thread(target=display, args=(q,), daemon=True, name='Display-')
+    scanner_thread = threading.Thread(target=barcode_scanner_provider, args=(q), daemon=True, name='Scanner-')
+    display_thread = threading.Thread(target=barcode_display_consumer, args=(q,display_instance), daemon=True, name='Display-')
     scanner_thread.start()
     display_thread.start()
     display_thread.join()
     scanner_thread.join()
-except IOError as e:
-    logging.info(e)
 except KeyboardInterrupt:    
     logging.info("ctrl + c:")
+    epd7in5_V2.epdconfig.module_exit(cleanup=True)
     exit()
