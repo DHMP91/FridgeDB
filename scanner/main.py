@@ -51,8 +51,8 @@ try:
     display_instance = DisplayBarCode(epd)
 
     q = Queue()
-    scanner_thread = threading.Thread(target=barcode_scanner_provider, args=(q), daemon=True, name='Scanner-')
-    display_thread = threading.Thread(target=barcode_display_consumer, args=(q,display_instance), daemon=True, name='Display-')
+    scanner_thread = threading.Thread(target=barcode_scanner_provider, args=(q,), daemon=True, name='Scanner-')
+    display_thread = threading.Thread(target=barcode_display_consumer, args=(q,display_instance,), daemon=True, name='Display-')
     scanner_thread.start()
     display_thread.start()
     display_thread.join()
