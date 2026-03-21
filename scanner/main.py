@@ -33,17 +33,17 @@ async def barcode_scanner_provider(q_barcode: Queue):
     while True:
         barcode = scanner_reader.read_scanner(device)
         logging.info("barcode scanner: %s", barcode)
-        q_barcode.put(barcode)
+        await q_barcode.put(barcode)
 
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
     while True:
         # Loop until something is put for display
-        while q_barcode.empty():
+        while await q_barcode.empty():
             time.sleep(1)
 
         # Display the bar code
-        barcode = q_barcode.get()
+        barcode = await q_barcode.get()
         logging.info("Updateing screen with barcode: %s", barcode)
         disp_instance.barcode_update(barcode)
 
