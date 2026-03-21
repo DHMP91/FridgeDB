@@ -1,5 +1,5 @@
 from __future__ import annotations
-import importlib.resources as files
+import os
 import scanner.pic
 from PIL import Image,ImageDraw,ImageFont
 from typing import TYPE_CHECKING
@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 
 class DisplayBarCode:
     __barcode_label = 'Last Bar Code Scanned:'
-    __font24 = ImageFont.truetype(files(scanner.pic) / 'Font.ttc', 24)
+    __pic_dir = os.path.dirname(scanner.pic.__file__)
+    __font24 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 24)
 
     def __init__(self, epd: epd7in5_V2.EPD):
         self.epd = epd
