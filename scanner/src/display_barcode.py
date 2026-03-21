@@ -25,5 +25,5 @@ class DisplayBarCode:
         draw = ImageDraw.Draw(Himage)
         draw.text((10, 0), f'{self.__barcode_label}: {barcode}', font = self.__font24, fill = 0)
         draw.line((20, 50, 70, 100), fill = 0)
-        epd.display_Partial(epd.getbuffer(Himage))
+        epd.display_Partial(epd.getbuffer(Himage), 0, 0, epd.width, epd.height)
         epd.sleep()
