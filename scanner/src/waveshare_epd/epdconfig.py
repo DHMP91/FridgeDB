@@ -1,3 +1,5 @@
+# pylint: disable=all
+# type: ignore
 # /*****************************************************************************
 # * | File        :	  epdconfig.py
 # * | Author      :   Waveshare team

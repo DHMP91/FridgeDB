@@ -2,14 +2,14 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 from PIL import Image,ImageDraw,ImageFont
-import scanner.pic
+import pic
 
 if TYPE_CHECKING:
     from scanner.waveshare_epd import epd7in5_V2
 
 class DisplayBarCode:
     __barcode_label = 'Last Bar Code Scanned:'
-    __pic_dir = os.path.dirname(scanner.pic.__file__)
+    __pic_dir = os.path.dirname(pic.__file__)
     __font24 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 24)
 
     def __init__(self, epd: epd7in5_V2.EPD) -> None:

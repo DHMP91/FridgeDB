@@ -1,4 +1,5 @@
 asyncio
 pillow
 numpy
-mypy
+evdev
+requests

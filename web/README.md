@@ -1,2 +1,0 @@
-# FridgeDB Web
-

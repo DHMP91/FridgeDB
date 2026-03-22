@@ -1,4 +1,0 @@
-asyncio
-pillow
-numpy
-evdev
