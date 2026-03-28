@@ -31,7 +31,13 @@ OR
 Run
 ```
 git clone https://github.com/DHMP91/FridgeDB.git
-python -m scanner.main
+or
+git clone --no-checkout https://github.com/DHMP91/FridgeDB.git
+git sparse-checkout set scanner
+
+
+cd scanner
+python -m main
 ```
 
 Connecting to wireless scanner NT1228BC to Raspberry Pi Zero 2W
