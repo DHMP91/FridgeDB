@@ -15,6 +15,55 @@
       "when": 1774798924168,
       "tag": "0001_wandering_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775247395669,
+      "tag": "0002_nostalgic_thing",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1775247556354,
+      "tag": "0003_petite_captain_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1775247715229,
+      "tag": "0004_youthful_quentin_quire",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1775249297525,
+      "tag": "0005_warm_sersi",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1775407253216,
+      "tag": "0006_safe_pyro",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1775409765173,
+      "tag": "0007_overrated_marvex",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1775410001502,
+      "tag": "0008_yummy_the_santerians",
+      "breakpoints": true
     }
   ]
 }

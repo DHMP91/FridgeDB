@@ -1,12 +1,17 @@
 import { error } from '@sveltejs/kit';
-import { mockedItems } from '$lib/data.js';
+import { db } from "$lib/server/db/index.js"
+import { item } from "$lib/server/db/schema"
+import { eq  } from 'drizzle-orm' 
 
-export function load({ params }) {
-	const item = mockedItems.find((item) => item.id === Number(params.itemId));
+export async function load({ params }) {
+	const itemId = Number(params.itemId)
+	const selectedItem = await db
+				.select()
+				.from(item)
+				.where(eq(item.id, itemId));
 
-	if (!item) error(404);
-
+	if (selectedItem.length === 0) error(404);
 	return {
-		item
+		item: selectedItem[0]
 	};
 }

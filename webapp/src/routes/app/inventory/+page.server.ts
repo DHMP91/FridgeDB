@@ -1,5 +1,14 @@
 import type { Actions } from './$types';
-// import { fail } from '@sveltejs/kit';
+import { db } from "$lib/server/db/index.js"
+import { item } from "$lib/server/db/schema"
+
+export async function load() {
+	const items = await db.select().from(item)
+	return {
+		items
+	};
+}
+
 
 export const actions: Actions = {
 	addItem: async (event) => {

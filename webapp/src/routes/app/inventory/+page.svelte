@@ -4,13 +4,24 @@
   import { enhance } from '$app/forms';
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch } from "flowbite-svelte";
   import { ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte";
-  import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/itemType";
-  import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/itemType";
-  import { mockedItems } from "$lib/data";
+  import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
+  import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
+  let { data } = $props();
+
+  let items: ItemType[] =$state([]) 
+  let prefixError = $state(false)
+  $effect(() => {
+    items = data.items;
+    if(existingPrefix.includes(initials)) {
+      prefixError = true
+    }else{
+      prefixError = false
+    }
+  });
 
   // Table
   let searchTerm = $state("");
-  let filteredItems = $derived.by(() => mockedItems.filter((item) => !searchTerm || item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+  let filteredItems = $derived.by(() => items.filter((item) => !searchTerm || item.name.toLowerCase().includes(searchTerm.toLowerCase())));
   let openRow = $state();
   let details: ItemType | undefined = $state(); 
   let showDetailModal = $state(false);
@@ -27,15 +38,8 @@
   let selectedState: ItemState = $state(AllItemStates[0]); 
   let itemName: string = $state("")
   let initials: string = $state("")
-  const existingPrefix: string[] = [...new Set(mockedItems.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
-  let prefixError = $state(false)
-  $effect(() => {
-    if(existingPrefix.includes(initials)) {
-      prefixError = true
-    }else{
-      prefixError = false
-    }
-  });
+  const existingPrefix: string[] = [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
+
 
   function handleInput() {
     initials = itemName

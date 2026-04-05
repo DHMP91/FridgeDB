@@ -1,7 +1,7 @@
 
 <script lang="ts">
     import { Button } from "flowbite-svelte";
-    import { type ItemType } from "$lib/itemType";
+    import type { ItemType } from "$lib/types/item.js";
     import PrintPdf from "svelte-printpdf"
     import type { Attachment } from 'svelte/attachments';
     import JsBarcode from "jsbarcode";
