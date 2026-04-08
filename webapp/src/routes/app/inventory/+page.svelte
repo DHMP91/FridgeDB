@@ -3,12 +3,12 @@
   import type { SubmitFunction } from '@sveltejs/kit';
   import { enhance } from '$app/forms';
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch } from "flowbite-svelte";
-  import { ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte";
+  import { Alert, ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte";
   import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
   import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
   let { data } = $props();
 
-  let items: ItemType[] =$state([]) 
+  let items: ItemType[] = $state([]) 
   let prefixError = $state(false)
   $effect(() => {
     items = data.items;
@@ -38,7 +38,9 @@
   let selectedState: ItemState = $state(AllItemStates[0]); 
   let itemName: string = $state("")
   let initials: string = $state("")
-  const existingPrefix: string[] = [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
+  const existingPrefix: string[] = $derived(
+    [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
+  )
 
 
   function handleInput() {
@@ -50,6 +52,7 @@
   }
 
   let message = $state('');
+  let errorMessage = $state('');
   let isLoading = $state(false);
   const  submitNewItem: SubmitFunction = async ({ formElement }) => {
       isLoading = true;
@@ -60,17 +63,18 @@
           message = result.data?.message || 'Success!';
           formElement.reset();
         } else if (result.type === 'failure') {
-          message = result.data?.description || 'An error occurred.';
+          errorMessage = result.data?.description || 'An error occurred.';
         }
 
         isLoading = false;
+        initials = ""
         // 'update()' re-runs load functions to update the page state
         await update();
       };
   };
 </script>
 
-<main class="flex-1 w-full overflow-auto">
+<main class="flex-1 w-full overflow-auto mb-10">
   <header class="h-8 flex items-center bg-white">
     <h1 class="text-lg font-semibold text-gray-500">Inventory</h1>
   </header>
@@ -114,24 +118,33 @@
   <Modal title="Add" form bind:open={openAddItemModal}>
     <div>
       <form method="POST" action="?/addItem" use:enhance={submitNewItem}>
-        {#if message}
-          <p>{message}</p>
+        {#if errorMessage}
+          <div class="mb-6">
+            <Alert color="red">
+              <span class="font-medium">Error! {errorMessage}</span>
+            </Alert>
+          </div>
+        {:else if message}
+          <Alert color="green">
+            <span class="font-medium"> { message }</span>
+          </Alert>
         {/if}
+
         <div class="mb-6">
           <Label for="name" class="mb-2 block">Name</Label>
-          <Input id="name" placeholder="Enter item name" onInput={() => handleInput()} bind:value={itemName}/>
+          <Input id="name" name="name" placeholder="Enter item name" onInput={() => handleInput()} bind:value={itemName}/>
         </div>
 
         <div class="mb-6">
           {#if prefixError }
             <Label for="barcodePrefix" color="red" class="mb-2 block">Barcode Prefix</Label>
-            <Input id="barcodePrefix" color="red" placeholder="Enter Barcode Prefix" bind:value={initials}/>
+            <Input id="barcodePrefix" name="barcodePrefix" color="red" placeholder="Enter Barcode Prefix" bind:value={initials}/>
             <Helper class="mt-2" color="red">
               <span class="font-medium">Already exists! Manually enter a unique prefix</span>
             </Helper>
           {:else}
             <Label for="barcodePrefix" class="mb-2 block">Barcode Prefix</Label>
-            <Input id="barcodePrefix" placeholder="Enter Barcode Prefix" value={initials}/>
+            <Input id="barcodePrefix" name="barcodePrefix" placeholder="Enter Barcode Prefix" value={initials}/>
           {/if}
 
         </div>
