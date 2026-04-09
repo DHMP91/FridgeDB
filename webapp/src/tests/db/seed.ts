@@ -34,4 +34,5 @@ async function main() {
     console.log("Items inserted successfully!");
 }
 
+// npx tsx .\src\tests\db\seed.ts
 await main();

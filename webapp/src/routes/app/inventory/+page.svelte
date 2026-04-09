@@ -2,7 +2,7 @@
   import { slide } from "svelte/transition";
   import type { SubmitFunction } from '@sveltejs/kit';
   import { enhance } from '$app/forms';
-  import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch } from "flowbite-svelte";
+  import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte";
   import { Alert, ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte";
   import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
   import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
@@ -74,38 +74,45 @@
   };
 </script>
 
-<main class="flex-1 w-full overflow-auto mb-10">
+<main class="flex-1 w-full">
   <header class="h-8 flex items-center bg-white">
     <h1 class="text-lg font-semibold text-gray-500">Inventory</h1>
   </header>
 
-  <TableSearch placeholder="Search by name" hoverable bind:inputValue={searchTerm}>
-    <TableHead>
-      <TableHeadCell>Name</TableHeadCell>
-      <TableHeadCell>Qty</TableHeadCell>
-    </TableHead>
-    <TableBody>
-      {#each filteredItems as item, i (item.id)}
-        <TableBodyRow onclick={() => { toggleRow(i); details = item; }} class={openRow === i ? "" : "dark:bg-gray-50 border-gray-200 border-b"}>
-          <TableBodyCell>{item.name}</TableBodyCell>
-          <TableBodyCell>{item.quantity}</TableBodyCell>
-        </TableBodyRow>
-        {#if openRow === i}
-        <TableBodyRow
-          class="dark:bg-gray-50 border-gray-200 border-b">
-          <TableBodyCell colspan={4} class="p-0">
-            <div class="px-6 py-4" transition:slide={{ duration: 300, axis: "y" }}>
-              <ButtonGroup class="flex*:ring-primary-700!">
-                <Button href="/barcode/{details?.id}">Barcode</Button>
-                <Button onclick={() => { showDetailModal = true}}>Details</Button>
-              </ButtonGroup>
-            </div>
-          </TableBodyCell>
-        </TableBodyRow>
-        {/if}
-      {/each}
-    </TableBody>
-  </TableSearch>
+  <div class="max-w-100 mt-5 mb-5">
+      <Input placeholder="Search by name" bind:value={searchTerm}/>
+  </div>
+
+
+  <div class="relative w-full max-h-3/5 overflow-y-auto">
+    <Table placeholder="Search by name" hoverable>
+      <TableHead>
+        <TableHeadCell>Name</TableHeadCell>
+        <TableHeadCell>Qty</TableHeadCell>
+      </TableHead>
+        <TableBody>
+          {#each filteredItems as item, i (item.id)}
+            <TableBodyRow onclick={() => { toggleRow(i); details = item; }} class={openRow === i ? "" : "dark:bg-gray-50 border-gray-200 border-b"}>
+              <TableBodyCell>{item.name}</TableBodyCell>
+              <TableBodyCell>{item.quantity}</TableBodyCell>
+            </TableBodyRow>
+            {#if openRow === i}
+            <TableBodyRow
+              class="dark:bg-gray-50 border-gray-200 border-b">
+              <TableBodyCell colspan={4} class="p-0">
+                <div class="px-6 py-4" transition:slide={{ duration: 300, axis: "y" }}>
+                  <ButtonGroup class="flex*:ring-primary-700!">
+                    <Button href="/barcode/{details?.id}">Barcode</Button>
+                    <Button onclick={() => { showDetailModal = true}}>Details</Button>
+                  </ButtonGroup>
+                </div>
+              </TableBodyCell>
+            </TableBodyRow>
+            {/if}
+          {/each}
+        </TableBody>
+    </Table>
+  </div>
 
   <Button class="absolute inset-e-6 bottom-20" onclick={ () => {openAddItemModal=true }}> + </Button>
 
