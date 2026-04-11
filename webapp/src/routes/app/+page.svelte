@@ -1,7 +1,6 @@
 <script lang="ts">
-	let { data } = $props();
 </script>
 
 <main class="flex-1 w-full overflow-auto items-center">
-  <h1> Bonjour { data.user.name } </h1>
+  <h1> Bonjour </h1>
 </main>

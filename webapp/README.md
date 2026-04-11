@@ -31,11 +31,19 @@ npm run dev -- --open
 # or start on accessible host ip
 npm run dev -- --host
 
-# Create test data on database
+# Create test data on the database
 npx tsx .\src\tests\db\seed.ts\
 ```
 
+## Better Auth 
+Auth 3rd party changes
 
+```sh
+npm run auth:schema
+npm run db:generate
+npm run db:migrate
+npm run db:push
+```
 
 ## Building
 

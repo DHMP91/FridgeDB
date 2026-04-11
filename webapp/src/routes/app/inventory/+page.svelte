@@ -54,7 +54,7 @@
   let message = $state('');
   let errorMessage = $state('');
   let isLoading = $state(false);
-  const  submitNewItem: SubmitFunction = async ({ formElement }) => {
+  const submitNewItem: SubmitFunction = async ({ formElement }) => {
       isLoading = true;
       message = 'Submitting...';
       return async ({ result, update }) => {
