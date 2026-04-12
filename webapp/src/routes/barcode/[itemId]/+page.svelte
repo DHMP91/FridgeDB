@@ -1,7 +1,7 @@
 
 <script lang="ts">
     import { Button } from "flowbite-svelte";
-    import type { ItemType } from "$lib/types/item.js";
+    import type { Item } from "$lib/server/db/schema";
     import PrintPdf from "svelte-printpdf"
     import type { Attachment } from 'svelte/attachments';
     import JsBarcode from "jsbarcode";
@@ -10,7 +10,7 @@
     let { data } = $props();
 
     const nanoid6 = nanoid(6);
-    function attachBarCode (item: ItemType | undefined, index: number): Attachment {
+    function attachBarCode (item: Item | undefined, index: number): Attachment {
         return (element) => {
             JsBarcode(
                 element, 

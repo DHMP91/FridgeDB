@@ -21,7 +21,7 @@
 
   // Table
   let searchTerm = $state("");
-  let filteredItems = $derived.by(() => items.filter((item) => !searchTerm || item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+  let filteredItems = $derived.by(() => items.filter((item) => !searchTerm || item.name.replaceAll(' ', '').toLowerCase().includes(searchTerm.toLowerCase())));
   let openRow = $state();
   let details: ItemType | undefined = $state(); 
   let showDetailModal = $state(false);

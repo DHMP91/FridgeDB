@@ -1,31 +1,35 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db/index.js';
-import { barcode, item } from "$lib/server/db/schema.js"
-import { eq } from "drizzle-orm";
-import { type InferInsertModel } from "drizzle-orm"
+import { BarcodeModel } from '$lib/server/model/barcode'
+import { ItemModel } from '$lib/server/model/item'
+import type { Barcode, NewBarcode } from "$lib/server/db/schema.js"
 
 export async function POST({ request }) {
-	const { code } = await request.json();
-    type barcodeType = InferInsertModel<typeof barcode>
-
+	const { code, force = "false" } = await request.json();
     try {
-        const barcodeRecords = await db.select().from(barcode).where(eq(barcode.code, code))
-        if (barcodeRecords.length == 0) {
-            const barcodePrefix = code.split("-")[0]
-            const items = await db.select().from(item).where(eq(item.barcodePrefix, barcodePrefix))
-            if ( items.length == 0){
+        const target: Barcode | undefined = await BarcodeModel.getBarcode(code);
+        if (!target) {
+            // New barcode
+            const barcodePrefix = BarcodeModel.getPrefix(code)
+            const item = await ItemModel.getItemByBarcodePrefix(barcodePrefix)
+            if ( !item ){
                 return json({ error:"No item matching barcode" }, { status: 404 });
             }
-            const newBarCode: barcodeType = {
+            const newBarCode: NewBarcode = {
                 code,
-                itemId: items[0].id
+                itemId: item.id
             } 
-            await db.insert(barcode).values(newBarCode);
-            return json({ message: `barcode created for ${items[0].name}!` }, { status: 201 });
-        } else if (!barcodeRecords[0].consumed) {
-            await db.update(barcode).set({consumed: true}).where(eq(barcode.id, barcodeRecords[0].id))
+            await BarcodeModel.createBarcode(newBarCode)
+            return json({ message: `barcode created for ${item.name}!` }, { status: 201 });
+        } else if (!target.consumed) {
+            // Consumed barcode
+            await BarcodeModel.updateBarcode(target.id, {consumed: true})
+            return json({ message: `Setting barcode as consumed!` }, { status: 200 });
+        } else if (target.consumed && force ) {
+            // Force readd barcode
+            await BarcodeModel.updateBarcode(target.id, {consumed: false})
             return json({ message: `Setting barcode as consumed!` }, { status: 200 });
         } else {
+            // Already used barcode
             return json({ message: `bar code already consumed!` }, { status: 410 });
         }
     } catch ( error ) {

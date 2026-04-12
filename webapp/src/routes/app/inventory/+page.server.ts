@@ -1,11 +1,10 @@
 import type { Actions } from './$types';
-import { db } from "$lib/server/db/index.js"
-import { item } from "$lib/server/db/schema"
-import type { ItemType } from '$lib/types/item';
 import { fail } from '@sveltejs/kit';
+import { ItemModel } from '$lib/server/model/item'
+import type { NewItem } from '$lib/server/db/item.schema'
 
 export async function load() {
-	const items = await db.select().from(item)
+	const items = await ItemModel.getAllItems();
 	return {
 		items
 	};
@@ -35,16 +34,16 @@ export const actions: Actions = {
 		};
 
 		try {
-			const newItem: ItemType = {
+			const newItem: NewItem = {
 				name: formData.get('name')!.toString(),
 				state: formData.get('state')!.toString(),
 				category: formData.get('category')!.toString(),
-				meat: formData.get('meat')?.toString(),
-				seafood: formData.get('seafood')?.toString(),
+				meat: formData.get('meat') ? null : formData.get('meat')!.toString(),
+				seafood: formData.get('seafood') ? null : formData.get('seafood')!.toString(),
 				quantity: formData.get('quantity') ? Number(formData.get('quantity')) : 0,
 				barcodePrefix: formData.get('barcodePrefix')!.toString(),
 			}
-			await db.insert(item).values(newItem);
+			await ItemModel.createItem(newItem);
 		} catch ( error ) {
 			const errMsg = error instanceof Error ? error.message : String(error)
 			return fail(422, {
