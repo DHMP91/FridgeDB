@@ -16,7 +16,7 @@ class AppClient:
         url = f"{self.base_url}/api/scanner/barcode"
         try:
             async with self.session.post(url, json=payload) as resp:
-                msg = resp.json()['message']
+                msg = await resp.json()['message']
                 return msg
         except aiohttp.ClientResponseError as e:
             return f"{e.message} ({e.status})"

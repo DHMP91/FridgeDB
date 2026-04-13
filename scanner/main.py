@@ -36,8 +36,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
         )
         logging.info("barcode scanner: %s", barcode)
         message = await client.post_barcode(barcode)
-        await q_barcode.put({ "code": barcode, "message": message})     
-
+        await q_barcode.put({ "code": barcode, "message": message})
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
     while True:
