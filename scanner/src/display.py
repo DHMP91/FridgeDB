@@ -55,10 +55,13 @@ class Display:
         start_line = self.__new_line_spacing
         item_per_column = 20
         column_width = int(epd.width/3)
+        column = 0
         for i in range(0, 60):
-            if len(items) < i:
+            if len(items) - 1 < i:
                 break
-            column = column_width * (int(i/item_per_column))
+            if i+1 % item_per_column == 0:
+                column += column_width
+                start_line = self.__new_line_spacing
             draw.text(
                 (10 + column, start_line),
                 f'{items[i]["quantity"]}x {items[i]["name"][:column_width - 5]}',

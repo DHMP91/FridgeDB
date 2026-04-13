@@ -18,12 +18,15 @@ async def barcode_scanner_provider(q_barcode: Queue):
     delay = 5
     device = scanner_reader.find_scanner(scanner_name)
     while True:
-        if device is None:
-            logging.info("%s not found. Trying again in %s s...", scanner_name, delay)
-            await asyncio.sleep(delay)
-            device = scanner_reader.find_scanner(scanner_name)
-        else:
-            logging.info("Scanner %s found!", scanner_name)
+        # Search for device
+        while True:
+            if device is None:
+                logging.info("%s not found. Trying again in %s s...", scanner_name, delay)
+                await asyncio.sleep(delay)
+                device = scanner_reader.find_scanner(scanner_name)
+            else:
+                logging.info("Scanner %s found!", scanner_name)
+                break
 
         # Keep listening for barcode scan and push to queue
         while True:
