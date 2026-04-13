@@ -4,7 +4,7 @@ import { ItemModel } from '$lib/server/model/item'
 import type { Barcode, NewBarcode } from "$lib/server/db/schema.js"
 
 export async function POST({ request }) {
-	const { code, force = "false" } = await request.json();
+	const { code, force = false } = await request.json();
     try {
         const target: Barcode | undefined = await BarcodeModel.getBarcode(code);
         const barcodePrefix = BarcodeModel.getPrefix(code)
@@ -12,7 +12,7 @@ export async function POST({ request }) {
 
         // Check for item
         if ( !item ){
-            return json({ error:"No item found belonging to barcode!" }, { status: 404 });
+            return json({ error: `No item found belonging to barcode ${code}!` }, { status: 404 });
         }
 
         if (!target) {
