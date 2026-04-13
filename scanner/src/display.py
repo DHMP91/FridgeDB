@@ -17,7 +17,7 @@ class Display:
         epd.init()
         epd.Clear()
         epd.sleep()
-        barcode_height = 60
+        barcode_height = 70
         self.__y_axis_barcode_start = self.epd.height - barcode_height
         self.__y_axis_barcode_end = self.epd.height
         self.__y_axis_inventory_start = 0
@@ -29,7 +29,7 @@ class Display:
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        draw.text((10, 0), f'Last Bar Code Scanned: {code}', font = self.__font24, fill = 0)
+        draw.text((10, 0), f'Last Bar Code Scanned [ {code} ]', font = self.__font24, fill = 0)
         draw.text((10, self.__new_line_spacing), f'{message}', font = self.__font24, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
@@ -48,18 +48,17 @@ class Display:
 
         # Create Header
         title = "Inventory"
-        x_per_word = 11
-        dashes = "-" * int( (epd.width - int(len(title))/2 * x_per_word) / x_per_word )
+        dashes = "-" * 62
         draw.text(
             (0, 0),
-            f'{dashes}Inventory{dashes}',
+            f'{dashes}{title}{dashes}',
             font = self.__font18,
             fill = 0
         )
 
-        # Create Body 3 columns and 20 item each
+        # Create Body
         start_line = self.__new_line_spacing
-        item_per_column = 20
+        item_per_column = 18
         columns = 4
         padding = 10
         column_width = int(epd.width/columns)
@@ -80,8 +79,8 @@ class Display:
 
         # Bottom border
         draw.text(
-            (0, self.__new_line_spacing * (item_per_column + 1)),
-            "-"*int(epd.width/x_per_word),
+            (0, self.__y_axis_inventory_end),
+            "-"*138,
             font = self.__font18,
             fill = 0
         )
