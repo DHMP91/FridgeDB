@@ -3,3 +3,5 @@ pillow
 numpy
 evdev
 requests
+dotenv
+aiohttp

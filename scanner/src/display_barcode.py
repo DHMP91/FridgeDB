@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import pic
 
 if TYPE_CHECKING:

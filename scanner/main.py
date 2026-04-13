@@ -5,13 +5,14 @@ from asyncio import Queue
 from src.waveshare_epd import epd7in5_V2
 from src.scanner_reader import ScannerReader, ScannerNotFoundException
 from src.display_barcode import DisplayBarCode
+from src.app_client import AppClient
 logging.basicConfig(level=logging.INFO)
 
 
 async def barcode_scanner_provider(q_barcode: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
-
+    client = AppClient()
     # Loop until device is found
     attempts = 10
     delay = 5
@@ -34,16 +35,17 @@ async def barcode_scanner_provider(q_barcode: Queue):
             scanner_reader.read_scanner, device
         )
         logging.info("barcode scanner: %s", barcode)
-        await q_barcode.put(barcode)
+        message = await client.post_barcode(barcode)
+        await q_barcode.put({ "code": barcode, "message": message})     
 
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
     while True:
         # Display the bar code
         barcode = await q_barcode.get()
-        logging.info("Updateing screen with barcode: %s", barcode)
+        logging.info("Updating screen with barcode: %s", barcode)
         barcode = await asyncio.to_thread(
-            disp_instance.barcode_update, barcode
+            disp_instance.barcode_update, f"{barcode['code']} {barcode['message']}"
         )
 
 async def main():
