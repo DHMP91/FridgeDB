@@ -12,7 +12,7 @@ export async function POST({ request }) {
 
         // Check for item
         if ( !item ){
-            return json({ error: `No item found belonging to barcode ${code}!` }, { status: 404 });
+            return json({ message: `No item found belonging to barcode ${code}!` }, { status: 404 });
         }
 
         if (!target) {
