@@ -29,8 +29,8 @@ class Display:
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        draw.text((10, 0), f'Last Bar Code Scanned [ {code} ]', font = self.__font24, fill = 0)
-        draw.text((20, self.__new_line_spacing), f'{message}', font = self.__font24, fill = 0)
+        draw.text((50, 0), f'Last Bar Code Scanned [ {code} ]', font = self.__font24, fill = 0)
+        draw.text((50, self.__new_line_spacing*2), f'{message}', font = self.__font24, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,
