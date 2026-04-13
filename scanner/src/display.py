@@ -49,7 +49,7 @@ class Display:
         # Create Header
         title = "Inventory"
         x_per_word = 13
-        dashes = "-" * int( (epd.width - int(title)/2 * x_per_word) / x_per_word )
+        dashes = "-" * int( (epd.width - int(len(title))/2 * x_per_word) / x_per_word )
         draw.text(
             (0, 0),
             f'{dashes}Inventory{dashes}',
@@ -77,6 +77,14 @@ class Display:
                 fill = 0
             )
             start_line += self.__new_line_spacing
+
+        # Bottom border
+        draw.text(
+            (0, 0),
+            "-"*int(epd.width/x_per_word),
+            font = self.__font18,
+            fill = 0
+        )
 
         # Display
         epd.display_Partial(
