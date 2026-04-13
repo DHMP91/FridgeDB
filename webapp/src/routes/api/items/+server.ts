@@ -1,9 +1,11 @@
-// import { json } from '@sveltejs/kit';
-// import { db } from '$lib/server/db/index.js';
-// import { barcode, item } from "$lib/server/db/schema.js"
-// import { eq } from "drizzle-orm";
-// import { type InferInsertModel } from "drizzle-orm"
+import { ItemModel } from '$lib/server/model/item'
+import { json } from '@sveltejs/kit';
 
 export async function GET() {
+    try {
+        const items = await ItemModel.getAllItems()
+        return json(items, {status: 200})
+    } catch ( error ) {
+        return json({ error }, { status: 500 });
+    }
 }
-
