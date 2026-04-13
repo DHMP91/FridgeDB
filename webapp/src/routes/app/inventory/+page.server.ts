@@ -38,8 +38,8 @@ export const actions: Actions = {
 				name: formData.get('name')!.toString(),
 				state: formData.get('state')!.toString(),
 				category: formData.get('category')!.toString(),
-				meat: formData.get('meat') ? null : formData.get('meat')!.toString(),
-				seafood: formData.get('seafood') ? null : formData.get('seafood')!.toString(),
+				meat: formData.get('meat')?.toString(),
+				seafood: formData.get('seafood')?.toString(),
 				quantity: formData.get('quantity') ? Number(formData.get('quantity')) : 0,
 				barcodePrefix: formData.get('barcodePrefix')!.toString(),
 			}
