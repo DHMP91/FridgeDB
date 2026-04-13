@@ -43,6 +43,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
                         "No such device. Device disconnected?\n" \
                         "Starting searching for device again..."
                     )
+                    device = None
                     break
                 raise e
 
