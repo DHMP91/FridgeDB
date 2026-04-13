@@ -59,7 +59,7 @@ class Display:
         for i in range(0, 60):
             if len(items) - 1 < i:
                 break
-            if i+1 % item_per_column == 0:
+            if (i+1 % item_per_column) == 0:
                 column += column_width
                 start_line = self.__new_line_spacing
             draw.text(
