@@ -16,7 +16,7 @@ class AppClient:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, json=payload) as resp:
-                    msg = await resp.json()['message']
-                    return msg
+                    json = await resp.json()
+                    return json['message']
         except aiohttp.ClientResponseError as e:
             return f"{e.message} ({e.status})"
