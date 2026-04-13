@@ -1,9 +1,10 @@
 import asyncio
+import errno
 import sys
 import logging
 from asyncio import Queue
 from src.waveshare_epd import epd7in5_V2
-from src.scanner_reader import ScannerReader, ScannerNotFoundException
+from src.scanner_reader import ScannerReader
 from src.display import Display
 from src.app_client import AppClient
 logging.basicConfig(level=logging.INFO)
@@ -14,29 +15,34 @@ async def barcode_scanner_provider(q_barcode: Queue):
     scanner_reader = ScannerReader()
     client = AppClient()
     # Loop until device is found
-    attempts = 10
     delay = 5
     device = scanner_reader.find_scanner(scanner_name)
-    while attempts > 0:
+    while True:
         if device is None:
-            attempts -= 1
             logging.info("%s not found. Trying again in %s s...", scanner_name, delay)
             await asyncio.sleep(delay)
             device = scanner_reader.find_scanner(scanner_name)
         else:
             logging.info("Scanner %s found!", scanner_name)
             break
-    if device is None:
-        raise ScannerNotFoundException(f"{scanner_name} was not found after 3 attempts")
 
-    # Keep listening for barcode scan and push to queue
-    while True:
-        barcode = await asyncio.to_thread(
-            scanner_reader.read_scanner, device
-        )
-        logging.info("barcode scanner: %s", barcode)
-        message = await client.post_barcode(barcode)
-        await q_barcode.put({ "code": barcode, "message": message})
+        # Keep listening for barcode scan and push to queue
+        while True:
+            try:
+                barcode = await asyncio.to_thread(
+                    scanner_reader.read_scanner, device
+                )
+                logging.info("barcode scanner: %s", barcode)
+                message = await client.post_barcode(barcode)
+                await q_barcode.put({ "code": barcode, "message": message})
+            except OSError as e:
+                if e.errno == errno.ENODEV:
+                    print(
+                        "No such device. Device disconnected?\n" \
+                        "Starting searching for device again..."
+                    )
+                    break
+                raise e
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
     while True:
@@ -51,7 +57,7 @@ async def display_inventory(disp_instance: Display):
     client = AppClient()
     while True:
         # Display the bar code
-        items = client.get_inventory_list()
+        items = await client.get_inventory_list()
         logging.info("Updating screen with items")
         await asyncio.to_thread(
             disp_instance.display_inventory, items
