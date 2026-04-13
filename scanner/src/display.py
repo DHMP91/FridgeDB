@@ -42,16 +42,32 @@ class Display:
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        start_line = 0
-        for i in range(0, 20):
-            if len(items) > i:
-                draw.text(
-                    (10, start_line),
-                    f'{items[i]["name"]}',
-                    font = self.__font18,
-                    fill = 0
-                )
-                start_line += self.__new_line_spacing
+
+        # Create Header
+        draw.text(
+            (epd.width/2 , 0),
+            '-----Inventory-----',
+            font = self.__font18,
+            fill = 0
+        )
+
+        # Create Body 3 columns and 20 item each
+        start_line = self.__new_line_spacing
+        item_per_column = 20
+        column_width = int(epd.width/3)
+        for i in range(0, 60):
+            if len(items) < i:
+                break
+            column = column_width * (int(i/item_per_column))
+            draw.text(
+                (10 + column, start_line),
+                f'{items[i]["quantity"]}x {items[i]["name"][:column_width - 5]}',
+                font = self.__font18,
+                fill = 0
+            )
+            start_line += self.__new_line_spacing
+
+        # Display
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,

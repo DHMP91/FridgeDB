@@ -24,7 +24,6 @@ async def barcode_scanner_provider(q_barcode: Queue):
             device = scanner_reader.find_scanner(scanner_name)
         else:
             logging.info("Scanner %s found!", scanner_name)
-            break
 
         # Keep listening for barcode scan and push to queue
         while True:
@@ -37,7 +36,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
                 await q_barcode.put({ "code": barcode, "message": message})
             except OSError as e:
                 if e.errno == errno.ENODEV:
-                    print(
+                    logging.info(
                         "No such device. Device disconnected?\n" \
                         "Starting searching for device again..."
                     )
@@ -62,6 +61,7 @@ async def display_inventory(disp_instance: Display):
         await asyncio.to_thread(
             disp_instance.display_inventory, items
         )
+        await asyncio.sleep(60)
 
 async def main():
     try:
