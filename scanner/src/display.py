@@ -48,7 +48,7 @@ class Display:
 
         # Create Header
         title = "Inventory"
-        x_per_word = 13
+        x_per_word = 11
         dashes = "-" * int( (epd.width - int(len(title))/2 * x_per_word) / x_per_word )
         draw.text(
             (0, 0),
@@ -68,11 +68,11 @@ class Display:
             if len(items) - 1 < i:
                 break
             if ((i+1) % item_per_column) == 0:
-                column += column_width
+                column += column_width + padding
                 start_line = self.__new_line_spacing
             draw.text(
-                (column + padding, start_line),
-                f'{items[i]["quantity"]}x {items[i]["name"][:column_width - 5]}',
+                (column, start_line),
+                f'{items[i]["quantity"]}x {items[i]["name"][:column_width - padding]}',
                 font = self.__font18,
                 fill = 0
             )
@@ -80,7 +80,7 @@ class Display:
 
         # Bottom border
         draw.text(
-            (0, 0),
+            (0, self.__new_line_spacing * (item_per_column + 1)),
             "-"*int(epd.width/x_per_word),
             font = self.__font18,
             fill = 0
