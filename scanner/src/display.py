@@ -11,36 +11,38 @@ class Display:
     __pic_dir = os.path.dirname(pic.__file__)
     __font24 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 24)
     __font18 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 18)
-    __y_axis_barcode = 0
-    __y_axis_inventory = 40
-    __new_line_spacing = 20
 
     def __init__(self, epd: epd7in5_V2.EPD) -> None:
         self.epd = epd
         epd.init()
         epd.Clear()
         epd.sleep()
+        self.__y_axis_barcode_start = 0
+        self.__y_axis_barcode_end = 60
+        self.__y_axis_inventory_start = 60
+        self.__y_axis_inventory_end = self.epd.height - self.__y_axis_barcode_end
+        self.__new_line_spacing = 20
 
     def barcode_update(self, barcode: str) -> None:
         epd = self.epd
         epd.init_part()
-        hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
+        hi_image = Image.new('1', (epd.width, self.__y_axis_barcode_end), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
         draw.text((10, 0), f'Last Bar Code Scanned: {barcode}', font = self.__font24, fill = 0)
         draw.text((10, self.__new_line_spacing), f'{barcode}', font = self.__font24, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,
-            self.__y_axis_barcode,
+            self.__y_axis_barcode_start,
             epd.width,
-            epd.height
+            self.__y_axis_barcode_end,
         )
         epd.sleep()
 
     def display_inventory(self, items) -> None:
         epd = self.epd
         epd.init_part()
-        hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
+        hi_image = Image.new('1', (epd.width, self.__y_axis_inventory_end), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
 
         # Create Header
@@ -53,7 +55,7 @@ class Display:
 
         # Create Body 3 columns and 20 item each
         start_line = self.__new_line_spacing
-        item_per_column = 20
+        item_per_column = 15
         column_width = int(epd.width/3)
         column = 0
         for i in range(0, 60):
@@ -74,8 +76,8 @@ class Display:
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,
-            self.__y_axis_inventory,
+            self.__y_axis_inventory_start,
             epd.width,
-            epd.height
+            self.__y_axis_inventory_end
         )
         epd.sleep()
