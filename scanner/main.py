@@ -4,7 +4,7 @@ import logging
 from asyncio import Queue
 from src.waveshare_epd import epd7in5_V2
 from src.scanner_reader import ScannerReader, ScannerNotFoundException
-from src.display_barcode import DisplayBarCode
+from src.display import Display
 from src.app_client import AppClient
 logging.basicConfig(level=logging.INFO)
 
@@ -38,26 +38,37 @@ async def barcode_scanner_provider(q_barcode: Queue):
         message = await client.post_barcode(barcode)
         await q_barcode.put({ "code": barcode, "message": message})
 
-async def barcode_display_consumer(q_barcode: Queue, disp_instance: DisplayBarCode):
+async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
     while True:
         # Display the bar code
         barcode = await q_barcode.get()
         logging.info("Updating screen with barcode: %s", barcode)
-        barcode = await asyncio.to_thread(
+        await asyncio.to_thread(
             disp_instance.barcode_update, f"{barcode['code']} {barcode['message']}"
+        )
+
+async def display_inventory(disp_instance: Display):
+    client = AppClient()
+    while True:
+        # Display the bar code
+        items = client.get_inventory_list()
+        logging.info("Updating screen with items")
+        await asyncio.to_thread(
+            disp_instance.display_inventory, items
         )
 
 async def main():
     try:
         logging.info("init and Clear")
         epd = epd7in5_V2.EPD()
-        display_instance = DisplayBarCode(epd)
+        display_instance = Display(epd)
 
         q = Queue()
         # Run both tasks concurrently
         await asyncio.gather(
             barcode_scanner_provider(q),
-            barcode_display_consumer(q, display_instance)
+            barcode_display_consumer(q, display_instance),
+            display_inventory(display_instance)
         )
     except KeyboardInterrupt:
         logging.info("ctrl + c:")
