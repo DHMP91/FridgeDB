@@ -53,7 +53,7 @@ async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
         barcode = await q_barcode.get()
         logging.info("Updating screen with barcode: %s", barcode)
         await asyncio.to_thread(
-            disp_instance.barcode_update, f"{barcode['code']} {barcode['message']}"
+            disp_instance.barcode_update, barcode['code'], barcode['message']
         )
 
 async def display_inventory(disp_instance: Display):
@@ -73,8 +73,12 @@ async def main():
         epd = epd7in5_V2.EPD()
         display_instance = Display(epd)
 
+        # init empty screen
+        display_instance.barcode_update("", "")
+        display_instance.display_inventory([])
+
+        # Run scanner and various dispay update in parallel
         q = Queue()
-        # Run both tasks concurrently
         await asyncio.gather(
             barcode_scanner_provider(q),
             barcode_display_consumer(q, display_instance),

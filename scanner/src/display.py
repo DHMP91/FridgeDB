@@ -17,19 +17,20 @@ class Display:
         epd.init()
         epd.Clear()
         epd.sleep()
-        self.__y_axis_barcode_start = 0
-        self.__y_axis_barcode_end = 60
-        self.__y_axis_inventory_start = 60
-        self.__y_axis_inventory_end = self.epd.height - self.__y_axis_barcode_end
+        barcode_height = 60
+        self.__y_axis_barcode_start = self.epd.height - barcode_height
+        self.__y_axis_barcode_end = self.epd.height
+        self.__y_axis_inventory_start = 0
+        self.__y_axis_inventory_end = self.epd.height - barcode_height
         self.__new_line_spacing = 20
 
-    def barcode_update(self, barcode: str) -> None:
+    def barcode_update(self, code: str, message: str) -> None:
         epd = self.epd
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        draw.text((10, 0), f'Last Bar Code Scanned: {barcode}', font = self.__font24, fill = 0)
-        draw.text((10, self.__new_line_spacing), f'{barcode}', font = self.__font24, fill = 0)
+        draw.text((10, 0), f'Last Bar Code Scanned: {code}', font = self.__font24, fill = 0)
+        draw.text((10, self.__new_line_spacing), f'{message}', font = self.__font24, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,
@@ -46,26 +47,31 @@ class Display:
         draw = ImageDraw.Draw(hi_image)
 
         # Create Header
+        title = "Inventory"
+        x_per_word = 13
+        dashes = "-" * int( (epd.width - int(title)/2 * x_per_word) / x_per_word )
         draw.text(
-            (epd.width/2 , 0),
-            '-----Inventory-----',
+            (0, 0),
+            f'{dashes}Inventory{dashes}',
             font = self.__font18,
             fill = 0
         )
 
         # Create Body 3 columns and 20 item each
         start_line = self.__new_line_spacing
-        item_per_column = 15
-        column_width = int(epd.width/3)
+        item_per_column = 20
+        columns = 4
+        padding = 10
+        column_width = int(epd.width/columns)
         column = 0
-        for i in range(0, 60):
+        for i in range(0, item_per_column*columns):
             if len(items) - 1 < i:
                 break
-            if (i+1 % item_per_column) == 0:
+            if ((i+1) % item_per_column) == 0:
                 column += column_width
                 start_line = self.__new_line_spacing
             draw.text(
-                (10 + column, start_line),
+                (column + padding, start_line),
                 f'{items[i]["quantity"]}x {items[i]["name"][:column_width - 5]}',
                 font = self.__font18,
                 fill = 0
