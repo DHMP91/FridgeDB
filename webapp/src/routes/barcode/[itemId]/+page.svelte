@@ -9,6 +9,7 @@
     let print = $state(false);
     let { data } = $props();
 
+    // Sheet
     const nanoid6 = nanoid(6);
     function attachBarCode (item: Item | undefined, index: number): Attachment {
         return (element) => {
@@ -26,12 +27,29 @@
     function handleAfterPrint() {
         print=false;
     };
+
+    // CSV
+    function downloadCSV(item: Item, amount: number) {
+      const csvData = [];
+      for(let i = 0; i < amount; i++){
+        csvData.push(`${item.barcodePrefix}-${nanoid6}-${i + 1}`)
+      }
+      const csvContent = csvData.join("\n")
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "avery8167.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
 </script>
 
 
 <svelte:window onafterprint={handleAfterPrint}/>
 <div >
   <Button onclick={ async () => { print = true }}>Print sheet</Button>
+  <Button onclick={ async () => { downloadCSV(data.item, 80) }}>Download CSV</Button>
   <PrintPdf bind:print={ print }>
     <div class="p-4 bg-white">
       <div class="flex">

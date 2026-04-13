@@ -25,7 +25,7 @@ export async function POST({ request }) {
             await BarcodeModel.updateBarcode(target.id, {consumed: true})
             return json({ message: `Setting barcode as consumed!` }, { status: 200 });
         } else if (target.consumed && force ) {
-            // Force readd barcode
+            // Force re-add barcode
             await BarcodeModel.updateBarcode(target.id, {consumed: false})
             return json({ message: `Setting barcode as consumed!` }, { status: 200 });
         } else {

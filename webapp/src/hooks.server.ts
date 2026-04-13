@@ -26,7 +26,7 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	if (isProtectedAPI){
 		const apiKey = event.request.headers.get('x-api-key');
 		const notAuthed = new Response('Not authenticated', { status: 401 });
-		if( apiKey == null || apiKey == undefined ){
+		if( apiKey === null || apiKey === undefined ){
 			return notAuthed
 		}
 		const data = await auth.api.verifyApiKey({
