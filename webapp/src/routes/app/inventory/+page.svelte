@@ -2,9 +2,10 @@
   import { slide } from "svelte/transition";
   import type { SubmitFunction } from '@sveltejs/kit';
   import { enhance } from '$app/forms';
-  import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte";
-  import { Alert, ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte";
-  import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
+  import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
+  import { Alert, Badge, ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte"; // Generic
+  import { EditOutline, TrashBinOutline, BarcodeOutline } from "flowbite-svelte-icons"; // Icons
+  import { type BarcodeType, type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
   import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
   let { data } = $props();
 
@@ -24,11 +25,20 @@
   let filteredItems = $derived.by(() => items.filter((item) => !searchTerm || item.name.replaceAll(' ', '').toLowerCase().includes(searchTerm.toLowerCase())));
   let openRow = $state();
   let details: ItemType | undefined = $state(); 
-  let showDetailModal = $state(false);
+
+  // Modal: Barcodes
+  let itemBarcodes: BarcodeType[]= $state([]);
+  let showBarcodeDetailModal = $state(false);
   const toggleRow = (i: number) => {
     openRow = openRow === i ? null : i;
   }
+  async function getBarcodes (id: number) {
+    const res = await fetch(`/api/item/${id}/barcodes`, {
+			method: 'GET'
+    });
 
+    itemBarcodes = await res.json()
+	}
 
   // Modal: New Item Form
   let openAddItemModal = $state(false);
@@ -85,43 +95,74 @@
 
 
   <div class="relative w-full max-h-3/5 overflow-y-auto">
-    <Table placeholder="Search by name" hoverable>
+    <Table hoverable>
       <TableHead>
         <TableHeadCell>Name</TableHeadCell>
         <TableHeadCell>Qty</TableHeadCell>
       </TableHead>
         <TableBody>
           {#each filteredItems as item, i (item.id)}
-            <TableBodyRow onclick={() => { toggleRow(i); details = item; }} class={openRow === i ? "" : "dark:bg-gray-50 border-gray-200 border-b"}>
+            <TableBodyRow onclick={() => { toggleRow(i); details = item; }} class={openRow === i ? "bg-gray-50 dark:bg-gray-50 border-gray-50 border-b" : "dark:bg-gray-50 border-gray-200 border-b"}>
               <TableBodyCell>{item.name}</TableBodyCell>
               <TableBodyCell>{item.quantity}</TableBodyCell>
             </TableBodyRow>
             {#if openRow === i}
-            <TableBodyRow
-              class="dark:bg-gray-50 border-gray-200 border-b">
-              <TableBodyCell colspan={4} class="p-0">
-                <div class="px-6 py-4" transition:slide={{ duration: 300, axis: "y" }}>
-                  <ButtonGroup class="flex*:ring-primary-700!">
-                    <Button href="/barcode/{details?.id}">Barcode</Button>
-                    <Button onclick={() => { showDetailModal = true}}>Details</Button>
-                  </ButtonGroup>
-                </div>
-              </TableBodyCell>
-            </TableBodyRow>
+              <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-200 border-y">
+                <TableBodyCell colspan={4} class="p-0">
+                  <div transition:slide={{ duration: 300, axis: "y" }}>
+                    <div class="px-4">
+                      <Badge rounded> { details!.state } </Badge>
+                      <Badge color="pink" rounded> { details!.category } </Badge>
+                      {#if details!.meat } <Badge color="red" rounded> { details!.meat } </Badge> {/if}
+                      {#if details!.seafood } <Badge color="indigo" rounded> { details!.seafood } </Badge> {/if}
+                      <Badge color="gray" rounded> { details!.barcodePrefix } </Badge>
+                    </div>
+                    <div class="px-4 py-4">
+                      {#if details !== null || details!== undefined }
+                        <ButtonGroup class="flex*:ring-primary-700!">
+                          <Button onclick={ async () => { 
+                            // TODO implement edit
+                          }}><EditOutline class="shrink-0 h-6 w-6" /></Button>
+                          <Button onclick={ async () => { 
+                            await getBarcodes(details!.id!);
+                            showBarcodeDetailModal = true;
+                          }}><BarcodeOutline class="shrink-0 h-6 w-6" /></Button>
+                          <Button onclick={ async () => { 
+                            // TODO delete modal
+                          }}><TrashBinOutline class="shrink-0 h-6 w-6" /></Button>
+                        </ButtonGroup>
+                      {/if}
+                    </div>
+                  </div>
+                </TableBodyCell>
+              </TableBodyRow>
             {/if}
           {/each}
         </TableBody>
     </Table>
   </div>
 
-  <Button class="absolute inset-e-6 bottom-20" onclick={ () => {openAddItemModal=true }}> + </Button>
-
-  <Modal title="Details" form bind:open={showDetailModal}>
+  <Modal class="flex-1 max-h-4/5" bind:open={showBarcodeDetailModal}>
+    <Button href="/barcode/{details!.id}">Generate New Barcode</Button>
     <div>
-      <p> { details?.name }</p>
+      <Table>
+        <TableHead>
+          <TableHeadCell>Code</TableHeadCell>
+          <TableHeadCell>Age</TableHeadCell>
+        </TableHead>
+          <TableBody>
+            {#each itemBarcodes as barcode (barcode.id)}
+              <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b">
+                <TableBodyCell>{barcode.code}</TableBodyCell>
+                <TableBodyCell>{ Math.floor((Number(new Date()) - Number(new Date(barcode.createdAt))) / (1000 * 60 * 60 * 24))} Days</TableBodyCell>
+              </TableBodyRow>
+            {/each}
+          </TableBody>
+      </Table>
     </div>
   </Modal>
 
+  <Button class="absolute inset-e-6 bottom-20" onclick={ () => {openAddItemModal=true }}> + </Button>
   <Modal title="Add" form bind:open={openAddItemModal}>
     <div>
       <form method="POST" action="?/addItem" use:enhance={submitNewItem}>

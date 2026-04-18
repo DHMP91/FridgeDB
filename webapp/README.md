@@ -51,6 +51,8 @@ To create a production version of your app:
 
 ```sh
 npm run build
+
+node --env-file=.env build
 ```
 
 You can preview the production build with `npm run preview`.

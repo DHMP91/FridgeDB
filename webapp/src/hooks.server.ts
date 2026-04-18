@@ -23,7 +23,7 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 
 	// API protected route
 	const isProtectedAPI = protectedAPIRoutes.some((route) => event.route.id?.startsWith(route));
-	if (isProtectedAPI){
+	if (isProtectedAPI && !session){
 		const apiKey = event.request.headers.get('x-api-key');
 		const notAuthed = new Response('Not authenticated', { status: 401 });
 		if( apiKey === null || apiKey === undefined ){
