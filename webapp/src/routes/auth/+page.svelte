@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import type { ActionData } from '../auth/$types';
   	import { Modal, Label, Input, Button } from "flowbite-svelte";
 	let { form }: { form: ActionData } = $props();
@@ -7,7 +6,7 @@
 </script>
 
 <main class="flex-1 w-full">
-	<Modal title="Login" bind:open={loginModal} class="max-w-1/4" permanent>
+	<Modal title="Login" bind:open={loginModal} class="max-w-80" permanent>
 		<div>
 			<form method="post" action="?/signInEmail">
 			    <div class="mb-6">
