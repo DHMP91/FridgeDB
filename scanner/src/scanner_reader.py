@@ -25,6 +25,7 @@ class ScannerReader:
         ecodes.KEY_9: '9',
         # Other keys (add more as needed)
         ecodes.KEY_SPACE: ' ',
+        ecodes.KEY_MINUS: '-',
         # ecodes.KEY_ENTER: '\n',
         ecodes.KEY_BACKSPACE: '<BS>', # Special representation
         ecodes.KEY_TAB: '\t',
