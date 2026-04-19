@@ -18,7 +18,7 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	// URL protected route
 	const isProtected = protectedRoutes.some((route) => event.route.id?.startsWith(route));
 	if (isProtected && !session) {
-        throw redirect(303, '/better-auth/login');
+        throw redirect(303, '/auth');
     }
 
 	// API protected route

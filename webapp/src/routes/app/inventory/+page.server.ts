@@ -52,5 +52,35 @@ export const actions: Actions = {
 			});
 		}
 		
+	},
+	deleteItem: async (event) => {
+		const formData = await event.request.formData();
+		if(formData === null || formData === undefined) { 
+			return fail(422, {
+				description: "Form data is null or undefined",
+				error: "No form data"
+			})
+		};
+
+		console.log(formData)
+		if( formData.get('id') === null ) { 
+			return fail(422, {
+				description: "One of the following required field is missing: id",
+				error: "Missing required field",
+			})
+		};
+
+		try {
+			const id = Number(formData.get('id'))
+			await ItemModel.deleteItem(id);
+			return { message: `Successfully deleted item id ${id}!`}
+		} catch ( error ) {
+			const errMsg = error instanceof Error ? error.message : String(error)
+			return fail(422, {
+				description: errMsg ,
+				error: "Error deleting item",
+			});
+		}
+		
 	}
 };

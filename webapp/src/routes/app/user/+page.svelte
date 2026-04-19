@@ -19,7 +19,7 @@
 
 	{#if form?.apiKey}
 		<div class="max-w-100 mt-5 mb-5">
-			<p>Your new API Key: {data.user.id}.</p>
+			<p>Your new API Key: {form.apiKey}</p>
 		</div>
 	{:else}
 		<form method="post" action="?/newAPIKey" use:enhance>

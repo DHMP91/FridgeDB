@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import type { Actions } from '../../better-auth/$types';
+import type { Actions } from '../../auth/$types';
 import { auth } from '$lib/server/auth';
 import { env } from '$env/dynamic/private';
 import { db } from "$lib/server/db/index.js"
@@ -19,7 +19,7 @@ export const actions: Actions = {
 		await auth.api.signOut({
 			headers: event.request.headers
 		});
-		return redirect(302, '/better-auth/login');
+		return redirect(302, '/auth');
 	},
 	newAPIKey: async (event) => {
 		const user = event.locals.user;

@@ -4,7 +4,7 @@
   import { enhance } from '$app/forms';
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
   import { Alert, Badge, ButtonGroup , Button, Modal, Label, Input, Select, Helper } from "flowbite-svelte"; // Generic
-  import { EditOutline, TrashBinOutline, BarcodeOutline } from "flowbite-svelte-icons"; // Icons
+  import { TrashBinOutline, BarcodeOutline } from "flowbite-svelte-icons"; // Icons
   import { type BarcodeType, type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
   import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
   let { data } = $props();
@@ -82,11 +82,44 @@
         await update();
       };
   };
+
+  // Modal: Confirm delete
+  let deleteMessage: string | undefined = $state('');
+  let deleteErrorMessage: string | undefined = $state('');
+  let openDeleteModal = $state(false);
+    const deleteItem: SubmitFunction = async () => {
+      return async ({ result, update }) => {
+        // 'result' is automatically typed based on your server action's return types
+        if (result.type === 'success') {
+          deleteMessage = result.data?.message || 'Successfully deleted item!';
+        } else if (result.type === 'failure') {
+          deleteErrorMessage = result.data?.description || 'An error occurred.';
+        }
+        openDeleteModal = false
+        await update();
+        setTimeout(() => {
+          deleteMessage = undefined
+          deleteErrorMessage = undefined
+        }, 5000);
+      };
+  };
+
 </script>
 
 <main class="flex-1 w-full">
   <header class="h-8 flex items-center bg-white">
-    <h1 class="text-lg font-semibold text-gray-500">Inventory</h1>
+    <h1 class="text-lg font-semibold text-gray-500 pr-10 ">Inventory</h1>
+      <div class="max-w-100 mt-5 mb-5">
+        {#if deleteErrorMessage}
+          <Alert color="red">
+            <span class="font-medium">Error! {deleteErrorMessage}</span>
+          </Alert>
+        {:else if deleteMessage}
+          <Alert color="green">
+            <span class="font-medium"> { deleteMessage }</span>
+          </Alert>
+        {/if}
+      </div>
   </header>
 
   <div class="max-w-100 mt-5 mb-5">
@@ -120,15 +153,15 @@
                     <div class="px-4 py-4">
                       {#if details !== null || details!== undefined }
                         <ButtonGroup class="flex*:ring-primary-700!">
-                          <Button onclick={ async () => { 
+                          <!-- <Button onclick={ async () => { 
                             // TODO implement edit
-                          }}><EditOutline class="shrink-0 h-6 w-6" /></Button>
+                          }}><EditOutline class="shrink-0 h-6 w-6" /></Button> -->
                           <Button onclick={ async () => { 
                             await getBarcodes(details!.id!);
                             showBarcodeDetailModal = true;
                           }}><BarcodeOutline class="shrink-0 h-6 w-6" /></Button>
                           <Button onclick={ async () => { 
-                            // TODO delete modal
+                            openDeleteModal = true;
                           }}><TrashBinOutline class="shrink-0 h-6 w-6" /></Button>
                         </ButtonGroup>
                       {/if}
@@ -242,6 +275,18 @@
             Submit
           </Button>
         </div>
+      </form>
+    </div>
+  </Modal>
+
+  <Modal form bind:open={openDeleteModal}>
+    <div>
+      <form method="POST" action="?/deleteItem" use:enhance={deleteItem}>
+        <Label for="state" class="py-4">
+          Are you sure you want to delete {details?.name}?
+        </Label>
+        <input type="hidden" name="id" value={details!.id} />
+        <Button type="submit"> Delete it! </Button>
       </form>
     </div>
   </Modal>
