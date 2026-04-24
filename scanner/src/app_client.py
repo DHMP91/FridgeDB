@@ -22,8 +22,8 @@ class AppClient:
                 async with session.post(url, headers=headers, json=payload) as resp:
                     json = await resp.json()
                     return json['message']
-        except aiohttp.ClientResponseError as e:
-            return f"{e.message} ({e.status})"
+        except aiohttp.ClientError as e:
+            return str(e)
 
 
     async def get_inventory_list(self):
@@ -36,5 +36,5 @@ class AppClient:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, headers=headers) as resp:
                     return await resp.json()
-        except aiohttp.ClientResponseError:
+        except aiohttp.ClientError:
             return []

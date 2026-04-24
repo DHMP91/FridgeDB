@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 import pic
 
 if TYPE_CHECKING:
-    from scanner.waveshare_epd import epd7in5_V2
+    from src.waveshare_epd import epd7in5_V2
 
 class Display:
     __pic_dir = os.path.dirname(pic.__file__)
