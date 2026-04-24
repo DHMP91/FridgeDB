@@ -38,7 +38,6 @@ class Display:
             epd.width,
             self.__y_axis_barcode_end,
         )
-        epd.sleep()
 
     def display_inventory(self, items) -> None:
         epd = self.epd
@@ -85,4 +84,3 @@ class Display:
             epd.width,
             self.__y_axis_inventory_end
         )
-        epd.sleep()
