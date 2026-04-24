@@ -20,8 +20,6 @@ export const actions: Actions = {
 				error: "No form data"
 			})
 		};
-
-		console.log(formData)
 		if( formData.get('name') === null || 
 			formData.get('state') === null || 
 			formData.get('category') === null ||
@@ -61,8 +59,6 @@ export const actions: Actions = {
 				error: "No form data"
 			})
 		};
-
-		console.log(formData)
 		if( formData.get('id') === null ) { 
 			return fail(422, {
 				description: "One of the following required field is missing: id",
