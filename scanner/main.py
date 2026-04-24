@@ -14,7 +14,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
     # Loop until device is found
-    delay = 5
+    delay = 1
     device = scanner_reader.find_scanner(scanner_name)
     while True:
         # Search for device
@@ -66,7 +66,7 @@ async def display_inventory(disp_instance: Display):
         items = await client.get_inventory_list()
         logging.info("Updating screen with items")
         await asyncio.to_thread(disp_instance.display_inventory, items)
-        await asyncio.sleep(15)
+        await asyncio.sleep(60)
 
 async def main():
     try:
