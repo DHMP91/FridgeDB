@@ -10,12 +10,12 @@
     let { data } = $props();
 
     // Sheet
-    const nanoid6 = nanoid(6);
+    const nanoid3 = nanoid(3);
     function attachBarCode (item: Item | undefined, index: number): Attachment {
         return (element) => {
             JsBarcode(
                 element, 
-                item ? `${item.barcodePrefix}-${nanoid6}-${index}` : "unknown",
+                item ? `${item.barcodePrefix}-${nanoid3}-${index}` : "unknown",
                 { 
                     width:1,
                     height:40
@@ -32,7 +32,7 @@
     function downloadCSV(item: Item, amount: number) {
       const csvData = [];
       for(let i = 0; i < amount; i++){
-        csvData.push(`${item.barcodePrefix}-${nanoid6}-${i + 1}`)
+        csvData.push(`${item.barcodePrefix}-${nanoid3}-${i + 1}`)
       }
       const csvContent = csvData.join("\n")
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
