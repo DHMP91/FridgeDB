@@ -50,10 +50,11 @@ async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
     while True:
         # Display the bar code
         barcode = await q_barcode.get()
-        message = await client.post_barcode(barcode)
+        code = barcode['code']
+        message = await client.post_barcode(code)
         logging.info("Updating screen with barcode: %s", barcode)
         await asyncio.to_thread(
-            disp_instance.barcode_update, barcode['code'], message
+            disp_instance.barcode_update, code, message
         )
 
 async def display_inventory(disp_instance: Display):
