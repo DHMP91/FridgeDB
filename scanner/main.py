@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 async def barcode_scanner_provider(q_barcode: Queue):
     scanner_name = "NT CCD barcode scanner"
     scanner_reader = ScannerReader()
-    client = AppClient()
     # Loop until device is found
     delay = 5
     device = scanner_reader.find_scanner(scanner_name)
@@ -35,8 +34,7 @@ async def barcode_scanner_provider(q_barcode: Queue):
                     scanner_reader.read_scanner, device
                 )
                 logging.info("barcode scanner: %s", barcode)
-                message = await client.post_barcode(barcode)
-                await q_barcode.put({ "code": barcode, "message": message})
+                await q_barcode.put({ "code": barcode })
             except OSError as e:
                 if e.errno == errno.ENODEV:
                     logging.info(
@@ -48,28 +46,25 @@ async def barcode_scanner_provider(q_barcode: Queue):
                 raise e
 
 async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
+    client = AppClient()
     while True:
         # Display the bar code
         barcode = await q_barcode.get()
+        message = await client.post_barcode(barcode)
         logging.info("Updating screen with barcode: %s", barcode)
         await asyncio.to_thread(
-            disp_instance.barcode_update, barcode['code'], barcode['message']
+            disp_instance.barcode_update, barcode['code'], message
         )
-        # Update displayed inventory after barcode update
-        await __display_inventory(disp_instance)
 
 async def display_inventory(disp_instance: Display):
-    while True:
-        await __display_inventory(disp_instance)
-        await asyncio.sleep(60)
-
-async def __display_inventory(disp_instance: Display):
     client = AppClient()
-    items = await client.get_inventory_list()
-    logging.info("Updating screen with items")
-    await asyncio.to_thread(
-        disp_instance.display_inventory, items
-    )
+    while True:
+        items = await client.get_inventory_list()
+        logging.info("Updating screen with items")
+        await asyncio.to_thread(
+            disp_instance.display_inventory, items
+        )
+        await asyncio.sleep(15)
 
 async def main():
     try:
