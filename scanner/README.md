@@ -1,5 +1,6 @@
 # FridgeDB Scanner Side
 
+Sample eink code: https://github.com/waveshareteam/e-Paper/blob/master/RaspberryPi_JetsonNano/python/examples/epd_7in5_V2_test.py
 
 # Setup 
 ### [Tested on Raspberry pi OS + 7.5 waveshare eink paper hat]
