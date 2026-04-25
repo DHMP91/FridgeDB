@@ -35,11 +35,11 @@ class ScannerReader:
     }
 
     def find_scanner(self, scanner_name: str) -> InputDevice:
-        devices = [InputDevice(path) for path in list_devices()]
-        for device in devices:
-            if device.name == scanner_name:
-                return device
-        return None
+        for path in list_devices():
+            dev = InputDevice(path)
+            if dev.name == scanner_name:
+                return dev  # keep this one open
+            dev.close()
 
     def read_scanner(self, device: InputDevice) -> Union[None, str]:
         barcode = ""
