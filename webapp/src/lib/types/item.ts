@@ -8,8 +8,9 @@ export type ItemType = {
   category: string;
   meat?: string | null;
   seafood?: string | null;
-  quantity: number | null;
-  barcodePrefix: string;
+  quantity: number;
+  barcodeControlled: boolean;
+  barcodePrefix?: string | null;
   createdDate?: Date | null;
   updatedAt?: Date | null;
 }; 
@@ -32,7 +33,7 @@ export const AllItemCategories = [ "meat", "seafood", "dairy", "fruit", "vegetab
 type categoryTuple = typeof AllItemCategories
 export type ItemCategory = categoryTuple[number]
 
-export const AllMeatSubCategory = [ "porc", "chicken", "beef"] as const;
+export const AllMeatSubCategory = [ "porc", "chicken", "beef", "lamb", "duck"] as const;
 type meatTuple = typeof AllMeatSubCategory
 export type MeatSubCategory = meatTuple[number]
 

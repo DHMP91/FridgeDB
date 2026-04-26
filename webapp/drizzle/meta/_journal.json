@@ -71,6 +71,20 @@
       "when": 1775695207166,
       "tag": "0009_true_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1777147808089,
+      "tag": "0010_big_warbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1777149045141,
+      "tag": "0011_long_marten_broadcloak",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `item` MODIFY COLUMN `barcode_prefix` varchar(30);

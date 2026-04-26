@@ -22,15 +22,13 @@ export const actions: Actions = {
 		};
 		if( formData.get('name') === null || 
 			formData.get('state') === null || 
-			formData.get('category') === null ||
-			formData.get('barcodePrefix') === null
+			formData.get('category') === null
 		) { 
 			return fail(422, {
-				description: "One of the following required field is missing: name, state, category, barcodePrefix",
+				description: "One of the following required field is missing: name, state, category",
 				error: "Missing required field",
 			})
 		};
-
 		try {
 			const newItem: NewItem = {
 				name: formData.get('name')!.toString(),
@@ -39,7 +37,8 @@ export const actions: Actions = {
 				meat: formData.get('meat')?.toString(),
 				seafood: formData.get('seafood')?.toString(),
 				quantity: formData.get('quantity') ? Number(formData.get('quantity')) : 0,
-				barcodePrefix: formData.get('barcodePrefix')!.toString(),
+				barcodeControlled: formData.get('quantity') ? true : false,
+				barcodePrefix: formData.get('barcodePrefix') ? formData.get('barcodePrefix')?.toString() : null,
 			}
 			await ItemModel.createItem(newItem);
 		} catch ( error ) {
@@ -77,6 +76,32 @@ export const actions: Actions = {
 				error: "Error deleting item",
 			});
 		}
-		
+	},
+	updateQty: async (event) => {
+		const formData = await event.request.formData();
+		if(formData === null || formData === undefined) { 
+			return fail(422, {
+				description: "Form data is null or undefined",
+				error: "No form data"
+			})
+		};
+		if( formData.get('id') === null || formData.get('updateQty') === null ) { 
+			return fail(422, {
+				description: "One of the following required field is missing: id, updateQty",
+				error: "Missing required field",
+			})
+		};
+		try {
+			const id = Number(formData.get('id'))
+			const qty = Number(formData.get('updateQty'))
+			await ItemModel.updateItem(id, {quantity: qty});
+			return { message: `Successfully updated quantity to ${qty} for item id ${id}!`}
+		} catch ( error ) {
+			const errMsg = error instanceof Error ? error.message : String(error)
+			return fail(422, {
+				description: errMsg ,
+				error: "Error updating item quantity",
+			});
+		}
 	}
 };

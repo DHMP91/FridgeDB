@@ -31,10 +31,14 @@ export class ItemModel {
                 category: item.category,
                 meat: item.meat,
                 seafood: item.seafood,
+                barcodeControlled: item.barcodeControlled,
                 barcodePrefix: item.barcodePrefix,
                 createdAt: item.createdAt,
                 quantity: sql<number>`
-                    COALESCE(${sql`barcode_counts.quantity`}, 0)
+                CASE 
+                    WHEN ${item.barcodeControlled} THEN COALESCE(${sql`barcode_counts.quantity`}, 0)
+                    ELSE ${item.quantity}
+                END
                 `.as("quantity"),
             })
             .from(item)
@@ -56,5 +60,9 @@ export class ItemModel {
     static async getItemByBarcodePrefix (prefix: string): Promise<Item | undefined> {
         const records = await db.select().from(item).where(eq(item.barcodePrefix, prefix))
         return records.length === 0 ? undefined : records[0]
+    }
+
+    static async updateItem(id: number, updateItem: Partial<Item>) {
+        return await db.update(item).set(updateItem).where(eq(item.id, id))
     }
 }

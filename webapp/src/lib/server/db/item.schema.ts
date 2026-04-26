@@ -17,7 +17,8 @@ export const item = mysqlTable("item", {
   meat: varchar("meat", { length: 30 }),
   seafood: varchar("seafood", { length: 30 }),
   quantity: int("quantity"),
-  barcodePrefix: varchar("barcode_prefix", { length: 30 }).notNull().unique(),
+  barcodeControlled: boolean("barcode_controlled").notNull().default(true),
+  barcodePrefix: varchar("barcode_prefix", { length: 30 }).unique(),
   image: text("image"),
   createdAt: timestamp("created_at", { fsp: 3 }).defaultNow(),
   updatedAt: timestamp("updated_at", { fsp: 3 })

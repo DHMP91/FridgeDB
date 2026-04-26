@@ -1,0 +1,1 @@
+ALTER TABLE `item` ADD `barcode_controlled` boolean DEFAULT true;
