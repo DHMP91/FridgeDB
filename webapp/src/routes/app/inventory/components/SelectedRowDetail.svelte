@@ -24,12 +24,14 @@
     let itemQty = $derived(selectedItem?.quantity)
     let qtyTimeout : NodeJS.Timeout;
     let qtyUpdateForm: HTMLFormElement | null = $state(null);
-    function updateQty () {
+    const incrementQty = () => { itemQty += 1; updateQty(); }
+    const decrementQty = () => { itemQty -= 1; updateQty(); }
+    const updateQty  = () => {
         if ( !selectedItem ){
         return
         }
         clearTimeout(qtyTimeout);
-        itemQty += 1;
+
         qtyTimeout = setTimeout(() => {
         qtyUpdateForm?.requestSubmit(); // Triggers the native submit event
         }, 1000);
@@ -80,7 +82,7 @@
             <input type="hidden" name="id" value={selectedItem!.id} />
             <Label for="updateQty" class="mb-1 text-sm text-gray-900 dark:text-white">Adjust quantity:</Label>
             <div class="relative flex items-center gap-2">
-                <Button color="alternative" class="h-5 w-5 rounded-xl p-2" onclick={updateQty}>
+                <Button color="alternative" class="h-5 w-5 rounded-xl p-2" onclick={ decrementQty }>
                 <MinusOutline class="h-2.5 w-2.5" />
                 </Button>
                 <Input 
@@ -92,7 +94,7 @@
                     bind:value={itemQty} 
                     required 
                 />
-                <Button color="alternative" class="h-5 w-5 rounded-xl p-2" onclick={updateQty}>
+                <Button color="alternative" class="h-5 w-5 rounded-xl p-2" onclick={incrementQty}>
                 <PlusOutline class="h-2.5 w-2.5" />
                 </Button>
             </div>
