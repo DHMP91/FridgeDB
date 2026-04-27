@@ -2,15 +2,17 @@
   import type { SubmitFunction } from '@sveltejs/kit';
   import { enhance } from '$app/forms';
   import SelectedRowDetail from './components/SelectedRowDetail.svelte';
+  import NewItemModal from './components/NewItemModal.svelte';
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
-  import { Alert , Button, Modal, Label, Input, Select, Helper, Toggle} from "flowbite-svelte"; // Generic
+  import { Alert , Button, Modal, Label, Input } from "flowbite-svelte"; // Generic
   import {BarcodeOutline } from "flowbite-svelte-icons"; // Icons
-  import { type BarcodeType, type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
-  import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
+  import { type BarcodeType, type ItemType } from "$lib/types/item";
   let { data } = $props();
 
-  let items: ItemType[] = $state([]) 
-  let prefixError = $state(false)
+  let items: ItemType[] = $state([])
+  const existingPrefix: string[] = $derived(
+      [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
+  )
 
   // Table
   let searchTerm = $state("");
@@ -34,46 +36,6 @@
 
   // Modal: New Item Form
   let openAddItemModal = $state(false);
-  let selectedCategory: ItemCategory =  $state(AllItemCategories[0]);
-  let selectedMeatSubCategory: MeatSubCategory =  $state(AllMeatSubCategory[0]);
-  let selectedSeaFoodSubCategory: SeaFoodSubCategory =  $state(AllSeaFoodSubCategory[0]);
-  let selectedState: ItemState = $state(AllItemStates[0]); 
-  let itemName: string = $state("")
-  let barcodeControlledValue = $state(true);
-  const existingPrefix: string[] = $derived(
-    [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
-  )
-
-  let initials: string = $state("")
-  function createInitialForBarcodePrefix() {
-    initials = itemName
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase();
-  }
-
-  let message = $state('');
-  let errorMessage = $state('');
-  let isLoading = $state(false);
-  const submitNewItem: SubmitFunction = async ({ formElement }) => {
-      isLoading = true;
-      message = 'Submitting...';
-      return async ({ result, update }) => {
-        // 'result' is automatically typed based on your server action's return types
-        if (result.type === 'success') {
-          message = result.data?.message || 'Success!';
-          formElement.reset();
-        } else if (result.type === 'failure') {
-          errorMessage = result.data?.description || 'An error occurred.';
-        }
-
-        isLoading = false;
-        initials = ""
-        // 'update()' re-runs load functions to update the page state
-        await update();
-      };
-  };
 
   // Modal: Confirm delete
   let deleteMessage: string | undefined = $state('');
@@ -99,11 +61,6 @@
 
  $effect(() => {
     items = data.items;
-    if(barcodeControlledValue && existingPrefix.includes(initials)) {
-      prefixError = true
-    }else{
-      prefixError = false
-    }
   });
 </script>
 
@@ -178,91 +135,9 @@
     </div>
   </Modal>
 
-  <Button class="absolute inset-e-6 bottom-20" onclick={ () => {openAddItemModal=true }}> + </Button>
-  <Modal title="Add" form bind:open={openAddItemModal}>
-    <div>
-      <form method="POST" action="?/addItem" use:enhance={submitNewItem}>
-        {#if errorMessage}
-          <div class="mb-6">
-            <Alert color="red">
-              <span class="font-medium">Error! {errorMessage}</span>
-            </Alert>
-          </div>
-        {:else if message}
-          <Alert color="green">
-            <span class="font-medium"> { message }</span>
-          </Alert>
-        {/if}
+  <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true }}> + </Button>
+  <NewItemModal {openAddItemModal} {existingPrefix} />
 
-        <div class="mb-6">
-          <Label for="name" class="mb-2 block">Name</Label>
-          <Input id="name" name="name" placeholder="Enter item name" onInput={() => createInitialForBarcodePrefix()} bind:value={itemName}/>
-        </div>
-
-        <div class="mb-6">
-          <Toggle id="barcodeControlled" name="barcodeControlled" bind:checked={barcodeControlledValue}>Use barcode for item</Toggle>
-          {#if barcodeControlledValue }
-            {#if prefixError }
-              <Label for="barcodePrefix" color="red" class="mb-2 block">Barcode Prefix</Label>
-              <Input id="barcodePrefix" name="barcodePrefix" color="red" placeholder="Enter Barcode Prefix" bind:value={initials}/>
-              <Helper class="mt-2" color="red">
-                <span class="font-medium">Already exists! Manually enter a unique prefix</span>
-              </Helper>
-            {:else}
-              <Label for="barcodePrefix" class="mb-2 block">Barcode Prefix</Label>
-              <Input id="barcodePrefix" name="barcodePrefix" placeholder="Enter Barcode Prefix" value={initials}/>
-            {/if}
-          {/if}
-        </div>
-
-        <div class="mb-6">
-          <Label for="category">Select Item Category:</Label>
-          <Select id="category" name="category" bind:value={selectedCategory}>
-            {#each AllItemCategories as category (category)}
-              <option value={category}>{category}</option>
-            {/each}
-          </Select>
-        </div>
-
-        {#if selectedCategory === 'meat'}
-          <div class="mb-6">
-            <Label for="meat">Select Meat Type:</Label>
-            <Select id="meat" name="meat" bind:value={selectedMeatSubCategory}>
-              {#each AllMeatSubCategory as meat (meat)}
-                <option value={meat}>{meat}</option>
-              {/each}
-            </Select>
-          </div>
-        {/if}
-
-        {#if selectedCategory === 'seafood'}
-          <div class="mb-6">
-            <Label for="seafood">Select Seafood Type:</Label>
-            <Select id="seafood" name="seafood" bind:value={selectedSeaFoodSubCategory}>
-              {#each AllSeaFoodSubCategory as seafood (seafood)}
-                <option value={seafood}>{seafood}</option>
-              {/each}
-            </Select>
-          </div>
-        {/if}
-
-        <div class="mb-6">
-          <Label for="state">Select State:</Label>
-          <Select id="state" name="state" bind:value={selectedState}>
-            {#each AllItemStates as state (state)}
-              <option value={state}>{state}</option>
-            {/each}
-          </Select>
-        </div>
-
-        <div class="mb-6">
-          <Button type="submit" disabled={prefixError || isLoading}>
-            Submit
-          </Button>
-        </div>
-      </form>
-    </div>
-  </Modal>
 
   <Modal form bind:open={openDeleteModal}>
     <div>
