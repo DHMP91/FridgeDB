@@ -36,8 +36,7 @@ export const actions: Actions = {
 				category: formData.get('category')!.toString(),
 				meat: formData.get('meat')?.toString(),
 				seafood: formData.get('seafood')?.toString(),
-				quantity: formData.get('quantity') ? Number(formData.get('quantity')) : 0,
-				barcodeControlled: formData.get('quantity') ? true : false,
+				barcodeControlled: formData.get('barcodeControlled') == "on" ? true : false,
 				barcodePrefix: formData.get('barcodePrefix') ? formData.get('barcodePrefix')?.toString() : null,
 			}
 			await ItemModel.createItem(newItem);

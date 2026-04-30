@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { SubmitFunction } from '@sveltejs/kit';
-  import { enhance } from '$app/forms';
-  import SelectedRowDetail from './components/SelectedRowDetail.svelte';
-  import NewItemModal from './components/NewItemModal.svelte';
+  import SelectedRowDetail from './SelectedRowDetail.svelte';
+  import NewItemModal from './NewItemModal.svelte';
+  import DeleteItemModal from './DeleteItemModal.svelte'
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
-  import { Alert , Button, Modal, Label, Input } from "flowbite-svelte"; // Generic
+  import { Alert , Button, Modal, Input } from "flowbite-svelte"; // Generic
   import {BarcodeOutline } from "flowbite-svelte-icons"; // Icons
   import { type BarcodeType, type ItemType } from "$lib/types/item";
+	import { invalidateAll } from '$app/navigation';
   let { data } = $props();
 
   let items: ItemType[] = $state([])
@@ -41,22 +41,6 @@
   let deleteMessage: string | undefined = $state('');
   let deleteErrorMessage: string | undefined = $state('');
   let openDeleteModal = $state(false);
-    const deleteItem: SubmitFunction = async () => {
-      return async ({ result, update }) => {
-        // 'result' is automatically typed based on your server action's return types
-        if (result.type === 'success') {
-          deleteMessage = result.data?.message || 'Successfully deleted item!';
-        } else if (result.type === 'failure') {
-          deleteErrorMessage = result.data?.description || 'An error occurred.';
-        }
-        openDeleteModal = false
-        await update();
-        setTimeout(() => {
-          deleteMessage = undefined
-          deleteErrorMessage = undefined
-        }, 5000);
-      };
-  };
 
 
  $effect(() => {
@@ -139,15 +123,18 @@
   <NewItemModal {openAddItemModal} {existingPrefix} />
 
 
-  <Modal form bind:open={openDeleteModal}>
-    <div>
-      <form method="POST" action="?/deleteItem" use:enhance={deleteItem}>
-        <Label for="state" class="py-4">
-          Are you sure you want to delete {selectedItem?.name}?
-        </Label>
-        <input type="hidden" name="id" value={selectedItem!.id} />
-        <Button type="submit"> Delete it! </Button>
-      </form>
-    </div>
-  </Modal>
+  {#if selectedItem }
+  <DeleteItemModal 
+    {selectedItem} 
+    openModal = {openDeleteModal}
+    setDeleteResult = {(value) => { 
+      deleteMessage = value.deleteMessage
+      deleteErrorMessage = value.deleteErrorMessage
+      openRow = undefined
+      openDeleteModal = false
+      selectedId = undefined
+      invalidateAll()
+    }}
+  />
+  {/if}
 </main>

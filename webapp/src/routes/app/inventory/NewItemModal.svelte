@@ -2,11 +2,11 @@
     import { enhance } from '$app/forms';
     import type { SubmitFunction } from '@sveltejs/kit';
     import { Alert , Button, Modal, Label, Input, Select, Helper, Toggle} from "flowbite-svelte"; // Generic
-    import { type ItemType, type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
+    import { type ItemState, type ItemCategory, type MeatSubCategory, type SeaFoodSubCategory } from "$lib/types/item";
     import { AllItemCategories, AllItemStates, AllMeatSubCategory, AllSeaFoodSubCategory } from "$lib/types/item";
   
     let { 
-        openAddItemModal = $bindable<ItemType>(),
+        openAddItemModal = $bindable<boolean>(),
         existingPrefix
     } = $props<{ 
         openAddItemModal: boolean
