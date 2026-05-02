@@ -8,9 +8,11 @@
   import { type BarcodeType, type ItemType } from "$lib/types/item";
 	import { invalidateAll } from '$app/navigation';
 	import BarcodeModal from './BarcodeModal.svelte';
-  let { data } = $props();
 
+  // Load data
+  let { data } = $props();
   let items: ItemType[] = $state([])
+  $effect(() => { items = data.items })
   const existingPrefix: string[] = $derived(
       [...new Set(items.flatMap((item) => item.barcodePrefix ? [item.barcodePrefix] : []))]
   )
@@ -42,11 +44,14 @@
   let deleteMessage: string | undefined = $state('');
   let deleteErrorMessage: string | undefined = $state('');
   let openDeleteModal = $state(false);
-
-
- $effect(() => {
-    items = data.items;
-  });
+  const setDeleteResult = (value: {deleteMessage: string, deleteErrorMessage: string}) => { 
+      deleteMessage = value.deleteMessage
+      deleteErrorMessage = value.deleteErrorMessage
+      openRow = undefined
+      openDeleteModal = false
+      selectedId = undefined
+      invalidateAll()
+  }
 </script>
 
 <main class="flex-1 w-full">
@@ -121,14 +126,7 @@
     <DeleteItemModal 
       {selectedItem} 
       openModal = {openDeleteModal}
-      setDeleteResult = {(value) => { 
-        deleteMessage = value.deleteMessage
-        deleteErrorMessage = value.deleteErrorMessage
-        openRow = undefined
-        openDeleteModal = false
-        selectedId = undefined
-        invalidateAll()
-      }}
+      {setDeleteResult}
     />
   {/if}
 </main>
