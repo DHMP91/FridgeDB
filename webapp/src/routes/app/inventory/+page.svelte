@@ -1,13 +1,20 @@
 <script lang="ts">
-  import SelectedRowDetail from './SelectedRowDetail.svelte';
-  import NewItemModal from './NewItemModal.svelte';
-  import DeleteItemModal from './DeleteItemModal.svelte'
-  import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
-  import { Alert , Button, Input } from "flowbite-svelte"; // Generic
-  import {BarcodeOutline } from "flowbite-svelte-icons"; // Icons
-  import { type BarcodeType, type ItemType } from "$lib/types/item";
 	import { invalidateAll } from '$app/navigation';
-	import BarcodeModal from './BarcodeModal.svelte';
+  import { 
+    Table,
+    TableHead, 
+    TableHeadCell, 
+    TableBody, 
+    TableBodyCell, 
+    TableBodyRow
+  } from "flowbite-svelte"; // Table Components
+  import { Alert , Button, Input } from "flowbite-svelte"; // Generic
+  import { BarcodeOutline } from "flowbite-svelte-icons"; // Icons
+  import { type BarcodeType, type ItemType } from "$lib/types/item";
+  import BarcodeModal from '$lib/ui/component/BarcodeModal.svelte';
+  import DeleteItemModal from '$lib/ui/component/DeleteItemModal.svelte';
+  import NewItemModal from '$lib/ui/component/NewItemModal.svelte';
+  import SelectedRowDetail from '$lib/ui/component/SelectedRowDetail.svelte';
 
   // Load data
   let { data } = $props();
@@ -44,7 +51,7 @@
   let deleteMessage: string | undefined = $state('');
   let deleteErrorMessage: string | undefined = $state('');
   let openDeleteModal = $state(false);
-  const setDeleteResult = (value: {deleteMessage: string, deleteErrorMessage: string}) => { 
+  const setDeleteResult = (value: {deleteMessage: string | undefined , deleteErrorMessage: string | undefined}) => { 
       deleteMessage = value.deleteMessage
       deleteErrorMessage = value.deleteErrorMessage
       openRow = undefined
