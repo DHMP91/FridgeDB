@@ -3,10 +3,11 @@
   import NewItemModal from './NewItemModal.svelte';
   import DeleteItemModal from './DeleteItemModal.svelte'
   import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
-  import { Alert , Button, Modal, Input } from "flowbite-svelte"; // Generic
+  import { Alert , Button, Input } from "flowbite-svelte"; // Generic
   import {BarcodeOutline } from "flowbite-svelte-icons"; // Icons
   import { type BarcodeType, type ItemType } from "$lib/types/item";
 	import { invalidateAll } from '$app/navigation';
+	import BarcodeModal from './BarcodeModal.svelte';
   let { data } = $props();
 
   let items: ItemType[] = $state([])
@@ -86,7 +87,7 @@
               </TableBodyCell>
               <TableBodyCell>{openRow !== i || item.barcodeControlled ? item.quantity : ""}</TableBodyCell>
             </TableBodyRow>
-            {#if openRow === i}
+            {#if openRow === i && selectedItem}
               <SelectedRowDetail 
                 {selectedItem} 
                 {getBarcodes} 
@@ -99,42 +100,35 @@
     </Table>
   </div>
 
-  <Modal class="flex-1 max-h-4/5" bind:open={showBarcodeDetailModal}>
-    <Button href="/barcode/{selectedItem!.id}">Generate New Barcode</Button>
-    <div>
-      <Table>
-        <TableHead>
-          <TableHeadCell>Code</TableHeadCell>
-          <TableHeadCell>Age</TableHeadCell>
-        </TableHead>
-          <TableBody>
-            {#each itemBarcodes as barcode (barcode.id)}
-              <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b">
-                <TableBodyCell>{barcode.code}</TableBodyCell>
-                <TableBodyCell>{ Math.floor((Number(new Date()) - Number(new Date(barcode.createdAt))) / (1000 * 60 * 60 * 24))} Days</TableBodyCell>
-              </TableBodyRow>
-            {/each}
-          </TableBody>
-      </Table>
-    </div>
-  </Modal>
+  {#if selectedItem && itemBarcodes }
+    <BarcodeModal
+      {selectedItem} 
+      {itemBarcodes}
+      openModal = {showBarcodeDetailModal}
+      setOpenModal = { (value: boolean) => { showBarcodeDetailModal = value}}
+    />
+  {/if}
 
   <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true }}> + </Button>
-  <NewItemModal {openAddItemModal} {existingPrefix} />
+  <NewItemModal
+    {openAddItemModal} 
+    {existingPrefix} 
+    setOpenModal = {(value: boolean) => { openAddItemModal = value}}
+  />
 
 
   {#if selectedItem }
-  <DeleteItemModal 
-    {selectedItem} 
-    openModal = {openDeleteModal}
-    setDeleteResult = {(value) => { 
-      deleteMessage = value.deleteMessage
-      deleteErrorMessage = value.deleteErrorMessage
-      openRow = undefined
-      openDeleteModal = false
-      selectedId = undefined
-      invalidateAll()
-    }}
-  />
+    <DeleteItemModal 
+      {selectedItem} 
+      openModal = {openDeleteModal}
+      setDeleteResult = {(value) => { 
+        deleteMessage = value.deleteMessage
+        deleteErrorMessage = value.deleteErrorMessage
+        openRow = undefined
+        openDeleteModal = false
+        selectedId = undefined
+        invalidateAll()
+      }}
+    />
   {/if}
 </main>

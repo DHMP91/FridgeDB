@@ -7,10 +7,12 @@
   
     let { 
         openAddItemModal = $bindable<boolean>(),
-        existingPrefix
+        existingPrefix,
+        setOpenModal
     } = $props<{ 
         openAddItemModal: boolean
-        existingPrefix: string[]
+        existingPrefix: string[],
+        setOpenModal: (value: boolean) => void
     }>();
 
     let selectedCategory: ItemCategory =  $state(AllItemCategories[0]);
@@ -61,7 +63,7 @@
     });
 </script>
 
-<Modal title="Add" form bind:open={openAddItemModal}>
+<Modal title="Add" form bind:open={openAddItemModal} onclose={() => {setOpenModal(false)}}>
     <div>
       <form method="POST" action="?/addItem" use:enhance={submitNewItem}>
         {#if errorMessage}
