@@ -19,7 +19,7 @@
 
 
   <Modal class="flex-1 max-h-4/5" bind:open={openModal} onclose={() => {setOpenModal(false)}}>
-    <Button href="/barcode/{selectedItem!.id}">Generate New Barcode</Button>
+    <Button href="/barcode/{selectedItem.id}">Generate New Barcode</Button>
     <div>
       <Table>
         <TableHead>

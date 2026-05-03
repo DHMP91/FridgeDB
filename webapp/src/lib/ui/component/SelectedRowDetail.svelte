@@ -5,7 +5,7 @@
     import { enhance } from '$app/forms';
     import { TableBodyCell, TableBodyRow} from "flowbite-svelte"; // Table Components
     import {  Badge, ButtonGroup , Button, Label, Input } from "flowbite-svelte"; // Generic
-    import { TrashBinOutline, BarcodeOutline, PlusOutline, MinusOutline } from "flowbite-svelte-icons"; // Icons
+    import { BarcodeOutline, EditOutline, MinusOutline, PlusOutline, TrashBinOutline } from "flowbite-svelte-icons"; // Icons
     import { type ItemType } from "$lib/types/item";
     
     let { 
@@ -13,11 +13,13 @@
         setShowBarcodeDetailModal,
         getBarcodes,
         setOpenDeleteModal,
+        setOpenEditModal
     } = $props<{ 
         selectedItem: ItemType | undefined, 
         setShowBarcodeDetailModal: (value: boolean) => void,
         getBarcodes: (id: number) => Promise<void>,
         setOpenDeleteModal: (value: boolean) => void,
+        setOpenEditModal: (value: boolean) => void
     }>();
 
     //Update item quantity form (for Non-Barcode Items)
@@ -59,9 +61,9 @@
         <div class="px-4 py-4">
             {#if selectedItem !== null || selectedItem!== undefined }
             <ButtonGroup class="flex*:ring-primary-700!">
-                <!-- <Button onclick={ async () => { 
-                // TODO implement edit
-                }}><EditOutline class="shrink-0 h-6 w-6" /></Button> -->
+                <Button onclick={ async () => { 
+                    setOpenEditModal(true)
+                }}><EditOutline class="shrink-0 h-6 w-6" /></Button>
                 {#if selectedItem.barcodeControlled }
                 <Button onclick={ async () => { 
                     await getBarcodes(selectedItem!.id!);

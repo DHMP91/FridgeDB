@@ -15,6 +15,7 @@
   import DeleteItemModal from '$lib/ui/component/DeleteItemModal.svelte';
   import NewItemModal from '$lib/ui/component/NewItemModal.svelte';
   import SelectedRowDetail from '$lib/ui/component/SelectedRowDetail.svelte';
+	import EditItemModal from '$lib/ui/component/EditItemModal.svelte';
 
   // Load data
   let { data } = $props();
@@ -44,8 +45,9 @@
     itemBarcodes = await res.json()
 	}
 
-  // Modal: New Item Form
+  // Modal: New/Edit Item Form
   let openAddItemModal = $state(false);
+  let openEditItemModal = $state(false);
 
   // Modal: Confirm delete
   let deleteMessage: string | undefined = $state('');
@@ -81,7 +83,6 @@
       <Input placeholder="Search by name" bind:value={searchTerm}/>
   </div>
 
-
   <div class="relative w-full max-h-3/5 overflow-y-auto">
     <Table hoverable>
       <TableHead>
@@ -105,12 +106,29 @@
                 {getBarcodes} 
                 setShowBarcodeDetailModal = {(value: boolean) => { showBarcodeDetailModal = value} } 
                 setOpenDeleteModal = {(value: boolean) => openDeleteModal = value}
+                setOpenEditModal = {(value: boolean) => openEditItemModal = value}
               />
             {/if}
           {/each}
         </TableBody>
     </Table>
   </div>
+
+  <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true }}> + </Button>
+  <NewItemModal
+    {openAddItemModal} 
+    {existingPrefix} 
+    setOpenModal = {(value: boolean) => { openAddItemModal = value}}
+  />
+
+  {#if selectedItem }
+    <EditItemModal
+      openModal = {openEditItemModal}
+      {existingPrefix} 
+      setOpenModal = {(value: boolean) => { openEditItemModal = value}}
+      editItem = {selectedItem}
+    />
+  {/if}
 
   {#if selectedItem && itemBarcodes }
     <BarcodeModal
@@ -120,14 +138,6 @@
       setOpenModal = { (value: boolean) => { showBarcodeDetailModal = value}}
     />
   {/if}
-
-  <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true }}> + </Button>
-  <NewItemModal
-    {openAddItemModal} 
-    {existingPrefix} 
-    setOpenModal = {(value: boolean) => { openAddItemModal = value}}
-  />
-
 
   {#if selectedItem }
     <DeleteItemModal 
