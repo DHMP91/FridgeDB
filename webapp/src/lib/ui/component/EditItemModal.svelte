@@ -35,7 +35,7 @@
 
     let errorMessage = $state('');
     let isLoading = $state(false);
-    
+
     $effect(() => {
         if (openModal) {
             itemName = $state.snapshot(editItem.name);
@@ -50,7 +50,7 @@
         }
     });
 
-    const submitNewItem: SubmitFunction = async ({ formElement }) => {
+    const submitForm: SubmitFunction = async ({ formElement }) => {
         isLoading = true;
         return async ({ result, update }) => {
           // 'result' is automatically typed based on your server action's return types
@@ -81,7 +81,7 @@
 
 <Modal title="Edit" form bind:open={openModal} onclose={() => {setOpenModal(false); invalidateAll()}}>
     <div>
-      <form method="POST" action="?/editItem" use:enhance={submitNewItem}>
+      <form method="POST" action="?/editItem" use:enhance={submitForm}>
         <input type="hidden" name="id" value={editItem.id} /> 
         {#if errorMessage}
           <div class="mb-6">

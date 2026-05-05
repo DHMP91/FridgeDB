@@ -31,12 +31,17 @@
   let openRow = $state();
   let selectedId: number | undefined = $state();
   const selectedItem = $derived(items.find((item) => item.id === selectedId));
+  $effect(() => { items = data.items })
+
 
   // Modal: Barcodes
   let itemBarcodes: BarcodeType[]= $state([]);
   let showBarcodeDetailModal = $state(false);
   const toggleRow = (i: number) => {
     openRow = openRow === i ? null : i;
+    if( openRow === null ){
+      selectedId = undefined
+    }
   }
   async function getBarcodes (id: number) {
     const res = await fetch(`/api/item/${id}/barcodes`, {
@@ -100,15 +105,14 @@
               </TableBodyCell>
               <TableBodyCell>{openRow !== i || item.barcodeControlled ? item.quantity : ""}</TableBodyCell>
             </TableBodyRow>
-            {#if openRow === i && selectedItem}
-              <SelectedRowDetail 
-                {selectedItem} 
-                {getBarcodes} 
-                setShowBarcodeDetailModal = {(value: boolean) => { showBarcodeDetailModal = value} } 
-                setOpenDeleteModal = {(value: boolean) => openDeleteModal = value}
-                setOpenEditModal = {(value: boolean) => openEditItemModal = value}
-              />
-            {/if}
+            <SelectedRowDetail 
+              openRow = { openRow === i }
+              {selectedItem} 
+              {getBarcodes} 
+              setShowBarcodeDetailModal = {(value: boolean) => { showBarcodeDetailModal = value} } 
+              setOpenDeleteModal = {(value: boolean) => openDeleteModal = value}
+              setOpenEditModal = {(value: boolean) => openEditItemModal = value}
+            />
           {/each}
         </TableBody>
     </Table>
