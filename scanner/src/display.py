@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+from datetime import datetime
 from typing import TYPE_CHECKING
 from PIL import Image, ImageDraw, ImageFont
 import pic
@@ -60,6 +61,7 @@ class Display:
         item_per_column = 18
         columns = 4
         padding = 10
+        max_char = 23
         column_width = int(epd.width/columns)
         column = 0
         for i in range(0, item_per_column*columns):
@@ -70,11 +72,22 @@ class Display:
                 start_line = self.__new_line_spacing
             draw.text(
                 (column, start_line),
-                f'{items[i]["quantity"]}x {items[i]["name"][:column_width - padding]}',
+                f'{items[i]["quantity"]}x {items[i]["name"][:max_char]}',
                 font = self.__font18,
                 fill = 0
             )
             start_line += self.__new_line_spacing
+
+        # Last updated line
+        last_row = (item_per_column + 1) * self.__new_line_spacing
+        now = datetime.now()
+        formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        draw.text(
+            (0, last_row),
+            'Last updated:' + formatted_time,
+            font = self.__font18,
+            fill = 0
+        )
 
         # Display
         epd.display_Partial(
