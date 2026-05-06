@@ -31,7 +31,7 @@ class Display:
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        draw.text((0, 0), f'Last Barcode Scanned [ {code} ] [ {message} ]', font = self.__font20, fill = 0)
+        draw.text((0, 0), f'Last Barcode Scanned [ {code} ] [ {message} ]', font = self.__font18, fill = 0)
         # draw.text((0, self.__new_line_spacing*2), f'{message}', font = self.__font20, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
@@ -62,29 +62,30 @@ class Display:
         item_per_column = 18
         columns = 4
         padding = 10
-        max_char = 20
+        max_char = 14
         column_width = int(epd.width/columns)
         column = 0
         for i in range(0, item_per_column*columns):
             if len(items) - 1 < i:
                 break
-            if ((i+1) % item_per_column) == 0:
-                column += column_width + padding
-                start_line = self.__new_line_spacing
             draw.text(
                 (column, start_line),
-                f'{items[i]["quantity"]}x {items[i]["name"][:max_char]}',
+                f'| {str(items[i]["quantity"]).zfill(2)} | {items[i]["name"][:max_char]}',
                 font = self.__font18,
                 fill = 0
             )
             start_line += self.__new_line_spacing
+            if ((i+1) % item_per_column) == 0:
+                column += column_width + padding
+                start_line = self.__new_line_spacing
+
 
         # Bottom border
         second_last_row = (item_per_column + 1) * self.__new_line_spacing
         draw.text(
             (0, second_last_row),
-             "-" * 133,
-            font = self.__font20,
+             "-" * 138,
+            font = self.__font18,
             fill = 0
         )
         # Last updated line
@@ -94,7 +95,7 @@ class Display:
         draw.text(
             (0, last_row + 5),
             'Last Updated [ ' + formatted_time + ' ]',
-            font = self.__font20,
+            font = self.__font18,
             fill = 0
         )
 
