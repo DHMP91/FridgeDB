@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 class Display:
     __pic_dir = os.path.dirname(pic.__file__)
     __font24 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 24)
+    __font20 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 20)
     __font18 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 18)
 
     def __init__(self, epd: epd7in5_V2.EPD) -> None:
@@ -30,8 +31,8 @@ class Display:
         epd.init_part()
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
-        draw.text((50, 0), f'Last Bar Code Scanned [ {code} ]', font = self.__font24, fill = 0)
-        draw.text((50, self.__new_line_spacing*2), f'{message}', font = self.__font24, fill = 0)
+        draw.text((25, 0), f'Last Barcode Scanned [ {code} ] [ {message} ]', font = self.__font20, fill = 0)
+        # draw.text((25, self.__new_line_spacing*2), f'{message}', font = self.__font20, fill = 0)
         epd.display_Partial(
             epd.getbuffer(hi_image),
             0,
@@ -61,7 +62,7 @@ class Display:
         item_per_column = 18
         columns = 4
         padding = 10
-        max_char = 15
+        max_char = 20
         column_width = int(epd.width/columns)
         column = 0
         for i in range(0, item_per_column*columns):
@@ -81,12 +82,11 @@ class Display:
         # Last updated line
         last_row = (item_per_column + 1) * self.__new_line_spacing
         now = datetime.now()
-        prefix_spacing = " " * 22
         formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
         draw.text(
-            (0, last_row + 5),
-            prefix_spacing + 'Last updated: ' + formatted_time,
-            font = self.__font18,
+            (25, last_row + 5),
+            'Last Updated [ ' + formatted_time + ' ]',
+            font = self.__font20,
             fill = 0
         )
 
