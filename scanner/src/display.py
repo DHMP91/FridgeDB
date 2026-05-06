@@ -61,7 +61,7 @@ class Display:
         item_per_column = 18
         columns = 4
         padding = 10
-        max_char = 23
+        max_char = 15
         column_width = int(epd.width/columns)
         column = 0
         for i in range(0, item_per_column*columns):
@@ -81,10 +81,11 @@ class Display:
         # Last updated line
         last_row = (item_per_column + 1) * self.__new_line_spacing
         now = datetime.now()
+        prefix_spacing = " " * 22
         formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
         draw.text(
-            (0, last_row),
-            'Last updated:' + formatted_time,
+            (0, last_row + 5),
+            prefix_spacing + 'Last updated: ' + formatted_time,
             font = self.__font18,
             fill = 0
         )
