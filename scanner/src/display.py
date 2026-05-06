@@ -53,7 +53,7 @@ class Display:
         draw.text(
             (0, 0),
             f'{dashes}{title}{dashes}',
-            font = self.__font18,
+            font = self.__font20,
             fill = 0
         )
 
@@ -83,7 +83,7 @@ class Display:
         second_last_row = (item_per_column + 1) * self.__new_line_spacing
         draw.text(
             (0, second_last_row),
-             "-" * 71,
+             "-" * 133,
             font = self.__font20,
             fill = 0
         )
