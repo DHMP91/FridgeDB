@@ -47,49 +47,61 @@ class Display:
         hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
         draw = ImageDraw.Draw(hi_image)
 
-        # Create Header
-        title = "Inventory"
-        dashes = "-" * 62
+        # Top Border
         draw.text(
             (0, 0),
-            f'{dashes}{title}{dashes}',
+            " " * 56 + "Inventory",
+            font = self.__font20,
+            fill = 0
+        )
+        draw.text(
+            (0, self.__new_line_spacing),
+            "-" * 138,
             font = self.__font20,
             fill = 0
         )
 
-        # Create Body
-        start_line = self.__new_line_spacing
+        # Create Table Body
+        starting = self.__new_line_spacing * 2
+        start_line = starting
         item_per_column = 18
         columns = 4
+        column_count = 0
         padding = 10
-        max_char = 14
+        max_char = 24
         column_width = int(epd.width/columns)
         column = 0
         for i in range(0, item_per_column*columns):
             if len(items) - 1 < i:
-                break
+                cell_content = f"| {" "*(max_char - 4)}"
+            else:
+                cell_content = f'| {str(items[i]["quantity"]).zfill(2)} | {items[i]["name"][:14]}'
+
+            if column_count == columns:
+                cell_content = cell_content[:-1] + "|"
             draw.text(
                 (column, start_line),
-                f'| {str(items[i]["quantity"]).zfill(2)} | {items[i]["name"][:max_char]}',
+                cell_content,
                 font = self.__font18,
                 fill = 0
             )
             start_line += self.__new_line_spacing
             if ((i+1) % item_per_column) == 0:
                 column += column_width + padding
-                start_line = self.__new_line_spacing
-
+                column_count += 1
+                start_line = starting
 
         # Bottom border
-        second_last_row = (item_per_column + 1) * self.__new_line_spacing
+        second_last_row = ((item_per_column + 1) * self.__new_line_spacing) + starting
         draw.text(
             (0, second_last_row),
              "-" * 138,
             font = self.__font18,
             fill = 0
         )
+
         # Last updated line
-        last_row = (item_per_column + 2) * self.__new_line_spacing
+        last_row = ((item_per_column + 2) * self.__new_line_spacing) + starting
         now = datetime.now()
         formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
         draw.text(
