@@ -50,6 +50,12 @@ class Display:
 
     def display_inventory(self, items) -> None:
         epd = self.epd
+        starting = self.__new_line_spacing * 2
+        start_line = starting
+        item_per_column = 18
+        columns = 4
+        screen_width = epd.width
+        column_width = int(screen_width/columns)
         with Image.new('1', (epd.width, epd.height), 255)  as hi_image:# 255: clear the frame
             draw = ImageDraw.Draw(hi_image)
 
@@ -69,13 +75,8 @@ class Display:
                 fill = 0
             )
 
-            # Create Table Body
-            starting = self.__new_line_spacing * 2
-            start_line = starting
-            item_per_column = 18
-            columns = 4
+            # Left border + Table Content
             column_count = 0
-            column_width = int(epd.width/columns)
             column = 0
             for i in range(0, item_per_column*columns):
                 if len(items) - 1 < i:
@@ -99,9 +100,9 @@ class Display:
 
             # Right border
             start_line = starting
-            for i in range(0, item_per_column*columns):
+            for i in range(0, item_per_column):
                 draw.text(
-                    (epd.width - 5, start_line),
+                    (screen_width - 5, start_line),
                     "|",
                     font = self.__font18,
                     fill = 0
@@ -109,7 +110,7 @@ class Display:
                 start_line += self.__new_line_spacing
 
             # Bottom border
-            second_last_row = ((item_per_column + 1) * self.__new_line_spacing) + starting
+            second_last_row = ((item_per_column) * self.__new_line_spacing) + starting
             draw.text(
                 (0, second_last_row),
                 "-" * 138,
