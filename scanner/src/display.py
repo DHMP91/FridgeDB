@@ -64,14 +64,14 @@ class Display:
             formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
             draw.text(
                 (0, 0),
-                'Inventory [ Last updated ' + formatted_time  + ' ]',
-                font = self.__font20,
+                'Inventory     [ Last updated ' + formatted_time  + ' ]',
+                font = self.__font18,
                 fill = 0
             )
             draw.text(
                 (0, self.__new_line_spacing),
                 "-" * 138,
-                font = self.__font20,
+                font = self.__font18,
                 fill = 0
             )
 
