@@ -18,7 +18,7 @@ class Display:
         epd.init()
         epd.Clear()
         epd.sleep()
-        barcode_height = 70
+        barcode_height = 40
         self.__y_axis_barcode_start = self.epd.height - barcode_height
         self.__y_axis_barcode_end = self.epd.height
         self.__y_axis_inventory_start = 0
@@ -58,7 +58,7 @@ class Display:
             formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
             draw.text(
                 (0, 0),
-                'Inventory [ Last updated ' + formatted_time  + ']',
+                'Inventory [ Last updated ' + formatted_time  + ' ]',
                 font = self.__font20,
                 fill = 0
             )
@@ -75,7 +75,6 @@ class Display:
             item_per_column = 18
             columns = 4
             column_count = 0
-            padding = 10
             column_width = int(epd.width/columns)
             column = 0
             for i in range(0, item_per_column*columns):
@@ -86,14 +85,6 @@ class Display:
                     short_name = items[i]["name"][:14]
                     cell_content = f'| {quantity_str} | {short_name}'
 
-                if column_count == columns:
-                    width = 30
-                    cell_length = len(cell_content)
-                    if cell_length >= width:
-                        cell_content = cell_content[:width - 1 ] + "|"
-                    else:
-                        fill_num = width - cell_content
-                        cell_content = cell_content + " "*(fill_num - 1) + '|'
                 draw.text(
                     (column, start_line),
                     cell_content,
@@ -102,9 +93,20 @@ class Display:
                 )
                 start_line += self.__new_line_spacing
                 if ((i+1) % item_per_column) == 0:
-                    column += column_width + padding
+                    column += column_width
                     column_count += 1
                     start_line = starting
+
+            # Right border
+            start_line = starting
+            for i in range(0, item_per_column*columns):
+                draw.text(
+                    (epd.width - 5, start_line),
+                    "|",
+                    font = self.__font18,
+                    fill = 0
+                )
+                start_line += self.__new_line_spacing
 
             # Bottom border
             second_last_row = ((item_per_column + 1) * self.__new_line_spacing) + starting
