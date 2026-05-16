@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 class Display:
     __pic_dir = os.path.dirname(pic.__file__)
-    __font24 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 24)
     __font20 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 20)
     __font18 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 18)
 
@@ -28,88 +27,99 @@ class Display:
 
     def barcode_update(self, code: str, message: str) -> None:
         epd = self.epd
-        hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
-        draw = ImageDraw.Draw(hi_image)
-        draw.text((0, 0), f'Last Barcode Scanned [ {code} ] [ {message} ]', font = self.__font18, fill = 0)
-        # draw.text((0, self.__new_line_spacing*2), f'{message}', font = self.__font20, fill = 0)
-        epd.display_Partial(
-            epd.getbuffer(hi_image),
-            0,
-            self.__y_axis_barcode_start,
-            epd.width,
-            self.__y_axis_barcode_end,
-        )
+        epd.init_part()
+        with Image.new('1', (epd.width, epd.height), 255) as hi_image:# 255: clear the frame
+            draw = ImageDraw.Draw(hi_image)
+            draw.text(
+                (0, 0),
+                f'Last Barcode Scanned [ {code} ] [ {message} ]',
+                font = self.__font18, fill = 0
+            )
+            # draw.text(
+            #   (0, self.__new_line_spacing*2),
+            #   f'{message}',
+            #   font = self.__font20, fill = 0
+            # )
+            epd.display_Partial(
+                epd.getbuffer(hi_image),
+                0,
+                self.__y_axis_barcode_start,
+                epd.width,
+                self.__y_axis_barcode_end,
+            )
 
     def display_inventory(self, items) -> None:
         epd = self.epd
-        hi_image = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
-        draw = ImageDraw.Draw(hi_image)
+        with Image.new('1', (epd.width, epd.height), 255)  as hi_image:# 255: clear the frame
+            draw = ImageDraw.Draw(hi_image)
 
-        # Top Border
-        now = datetime.now()
-        formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        draw.text(
-            (0, 0),
-            'Inventory [ Last updated ' + formatted_time  + ']',
-            font = self.__font20,
-            fill = 0
-        )
-        draw.text(
-            (0, self.__new_line_spacing),
-            "-" * 138,
-            font = self.__font20,
-            fill = 0
-        )
-
-        # Create Table Body
-        starting = self.__new_line_spacing * 2
-        start_line = starting
-        item_per_column = 18
-        columns = 4
-        column_count = 0
-        padding = 10
-        column_width = int(epd.width/columns)
-        column = 0
-        for i in range(0, item_per_column*columns):
-            if len(items) - 1 < i:
-                cell_content = "|"
-            else:
-                cell_content = f'| {str(items[i]["quantity"]).zfill(2)} | {items[i]["name"][:14]}'
-
-            if column_count == columns:
-                width = 30
-                cell_length = len(cell_content)
-                if cell_length >= width:
-                    cell_content = cell_content[:width - 1 ] + "|"
-                else:
-                    fill_num = width - cell_content
-                    cell_content = cell_content + " "*(fill_num - 1) + '|'
+            # Top Border
+            now = datetime.now()
+            formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
             draw.text(
-                (column, start_line),
-                cell_content,
+                (0, 0),
+                'Inventory [ Last updated ' + formatted_time  + ']',
+                font = self.__font20,
+                fill = 0
+            )
+            draw.text(
+                (0, self.__new_line_spacing),
+                "-" * 138,
+                font = self.__font20,
+                fill = 0
+            )
+
+            # Create Table Body
+            starting = self.__new_line_spacing * 2
+            start_line = starting
+            item_per_column = 18
+            columns = 4
+            column_count = 0
+            padding = 10
+            column_width = int(epd.width/columns)
+            column = 0
+            for i in range(0, item_per_column*columns):
+                if len(items) - 1 < i:
+                    cell_content = "|"
+                else:
+                    quantity_str = str(items[i]["quantity"]).zfill(2)
+                    short_name = items[i]["name"][:14]
+                    cell_content = f'| {quantity_str} | {short_name}'
+
+                if column_count == columns:
+                    width = 30
+                    cell_length = len(cell_content)
+                    if cell_length >= width:
+                        cell_content = cell_content[:width - 1 ] + "|"
+                    else:
+                        fill_num = width - cell_content
+                        cell_content = cell_content + " "*(fill_num - 1) + '|'
+                draw.text(
+                    (column, start_line),
+                    cell_content,
+                    font = self.__font18,
+                    fill = 0
+                )
+                start_line += self.__new_line_spacing
+                if ((i+1) % item_per_column) == 0:
+                    column += column_width + padding
+                    column_count += 1
+                    start_line = starting
+
+            # Bottom border
+            second_last_row = ((item_per_column + 1) * self.__new_line_spacing) + starting
+            draw.text(
+                (0, second_last_row),
+                "-" * 138,
                 font = self.__font18,
                 fill = 0
             )
-            start_line += self.__new_line_spacing
-            if ((i+1) % item_per_column) == 0:
-                column += column_width + padding
-                column_count += 1
-                start_line = starting
 
-        # Bottom border
-        second_last_row = ((item_per_column + 1) * self.__new_line_spacing) + starting
-        draw.text(
-            (0, second_last_row),
-             "-" * 138,
-            font = self.__font18,
-            fill = 0
-        )
-
-        # Display
-        epd.display_Partial(
-            epd.getbuffer(hi_image),
-            0,
-            self.__y_axis_inventory_start,
-            epd.width,
-            self.__y_axis_inventory_end
-        )
+            # Display
+            epd.display_Partial(
+                epd.getbuffer(hi_image),
+                0,
+                self.__y_axis_inventory_start,
+                epd.width,
+                self.__y_axis_inventory_end
+            )
