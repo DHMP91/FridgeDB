@@ -38,7 +38,8 @@ async def barcode_scanner_provider(q_barcode: Queue):
                 barcode = await asyncio.to_thread(
                     scanner_reader.read_scanner, device
                 )
-                logging.info("barcode scanner: %s", barcode)
+                # logging.info("barcode scanner: %s", barcode)
+                terminal_lines[terminal_line] = f"barcode scanner: {barcode}"
                 await q_barcode.put({ "code": barcode })
             except OSError as e:
                 if e.errno == errno.ENODEV:
