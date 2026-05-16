@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 class Display:
     __pic_dir = os.path.dirname(pic.__file__)
-    __font20 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 20)
     __font18 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 18)
 
     def __init__(self, epd: epd7in5_V2.EPD) -> None:
