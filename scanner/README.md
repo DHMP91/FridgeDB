@@ -52,6 +52,43 @@ connect XX:XX:XX:XX:XX:XX  <---- address of scanner shown in scan list
 ```
 
 
+# Run server as a service
+
+Create service file /etc/systemd/system/fridgedb-scanner.service
+```
+[Unit]
+Description=FridgeDB Scanner
+After=network.target
+
+[Service]
+Type=simple
+User=<USER_NAME>
+WorkingDirectory=/REPO_DIR/scanner
+ExecStart=python -m main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+
+Register and start service
+```
+sudo systemctl daemon-reload
+sudo systemctl enable fridgedb-scanner.service
+sudo systemctl start fridgedb-scanner.service
+```
+
+
+debug
+```
+journalctl -u fridgedb-scanner.service -f
+```
+
+
+
 
 
 

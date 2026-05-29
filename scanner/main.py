@@ -89,7 +89,7 @@ async def print_terminal_lines():
             # clear line + rewrite
             print(f"\033[K{line}")
 
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(1)
 
 async def main():
     try:

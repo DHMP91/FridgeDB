@@ -19,7 +19,11 @@
 
 
   <Modal class="flex-1 max-h-4/5" bind:open={openModal} onclose={() => {setOpenModal(false)}}>
-    <Button href="/barcode/{selectedItem.id}">Generate New Barcode</Button>
+    <Button onclick={ async () => { 
+        // await getBarcodes(selectedItem!.id!);
+        // setShowBarcodeDetailModal(true);
+    }}>Print Single Barcode</Button>
+    <Button href="/barcode/{selectedItem.id}">Generate Barcode Sheet</Button>
     <div>
       <Table>
         <TableHead>
