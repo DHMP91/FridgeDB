@@ -160,12 +160,12 @@ export const actions: Actions = {
 		try {
 			const image = formData.get('barcodeBase64')!.toString()
 			NiimbotPrinterInst.enqueue(image)
-			return { message: `Successfully Printed Barcode!`}
+			return { message: `Successfully queued barcode for print`}
 		} catch ( error ) {
 			const errMsg = error instanceof Error ? error.message : String(error)
 			return fail(422, {
 				description: errMsg ,
-				error: "Error printing barcode",
+				error: "Error queuing barcode for print",
 			});
 		}
 	}

@@ -42,7 +42,6 @@ export class NiimbotClient {
     }
 
     public async print(base64: string): Promise<Response> {
-        console.log(base64)
         const response = await fetch(
             `${this.baseUrl}/print`,
             {

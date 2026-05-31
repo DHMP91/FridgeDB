@@ -2,17 +2,6 @@
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
 ```sh
 # recreate this project
 npx sv@0.13.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:typography,forms" drizzle="database:mysql+mysql:mysql2+docker:no" better-auth="demo:password" --install npm ./
@@ -67,12 +56,14 @@ https://github.com/MultiMote/niimblue-node
 
 
 #### For local CLI (same machine as webapp)
+
+
+Install the dependies and add the bariables ENV file
 ```
 npm install -g node-gyp
 npm i -g @mmote/niimblue-node
 ```
 
-Add the following info to ENV file
 ```
 # NIMBOT PRINTER INFO (only 1 supported right now)
 NIIMBOT_MODEL=""
@@ -95,7 +86,6 @@ sudo apt install nodejs npm
 npm install -g node-gyp
 npm install -g @mmote/niimblue-node
 ```
-
 
 Start Server
 ```

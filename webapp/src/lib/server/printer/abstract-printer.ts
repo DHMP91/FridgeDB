@@ -1,3 +1,4 @@
+import logger from  '$lib/logging'
 export type PrintJob = {
   payload: string;
 };
@@ -33,10 +34,13 @@ export abstract class AbstractPrinter {
             await this.print(job);
           }
         }
+      } catch (error) {
+        logger.error("Issue encounter while trying to print")
+        logger.error(error)
       } finally {
         if (connected) {
           await this.disconnect();
-          console.log("All print job completed")
+          logger.info("All print job completed")
         }
         this.running = false;
       }

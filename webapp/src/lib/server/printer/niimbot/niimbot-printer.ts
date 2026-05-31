@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import logger from  '$lib/logging'
 import { AbstractPrinter, type PrintJob } from "../abstract-printer";
 import { NiimbotClient } from "./niimbot-client";
 dotenv.config();
@@ -19,16 +20,21 @@ class NiimbotPrinter extends AbstractPrinter {
   protected async connect() {
     const retry_interval = 5000
     let tries = 5;
-    while(!(await this.client.connect()).ok){
+    while(true){
+      try {
+        if((await this.client.connect()).ok) return true
+      } catch ( error ) {
+        logger.debug("Niimbot connect attempt:" + error)
+      }
+
       if ( tries < 0){
-        console.error("Could not connect to printer");
+        logger.error("Could not connect to niimbot printer");
         return false
       }
       --tries;
-      console.log(`Retrying connect to printer in ${retry_interval}ms`)
+      logger.info(`Retrying connect to printer in ${retry_interval}ms. Remaining Attempts:${tries}`)
       await new Promise(resolve => setTimeout(resolve, retry_interval));
     }
-    return true
   }
 
   protected async disconnect() {

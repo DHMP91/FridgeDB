@@ -1,6 +1,7 @@
 <script  lang="ts">
     import { Button, Modal } from "flowbite-svelte"; // Generic
     import { type BarcodeType, type ItemType } from "$lib/types/item";
+    import { Alert } from "flowbite-svelte"; // Generic
     // import type { Attachment } from 'svelte/attachments';
     import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
     import JsBarcode from "jsbarcode";
@@ -18,6 +19,9 @@
         setOpenModal: (value: boolean) => void
     }>();
 
+
+    let printSuccess = $state('');
+    let printError = $state('');
 
 
     const submitPrint = async () => {
@@ -60,10 +64,21 @@
         const base64 = canvas.toDataURL("image/png").split(",")[1];
         const formData = new FormData();
         formData.append("barcodeBase64", base64);
-        await fetch("?/printBarcode", {
+        const resp = await fetch("?/printBarcode", {
           method: "POST",
           body: formData
         });
+
+        if(resp.ok) {
+          printSuccess = `Successfully sent ${barcode} for printing`
+        } else {
+          printError = `Issue sending ${barcode} for printing`
+        }
+
+        setTimeout(() => {
+            printSuccess = ""
+            printError = ""
+        }, 5000);
     };
 
     // function attachBarCode(): Attachment {
@@ -105,6 +120,17 @@
 
 
   <Modal class="flex-1 max-h-4/5" bind:open={openModal} onclose={() => {setOpenModal(false)}}>
+    {#if printError}
+      <div class="mb-6">
+        <Alert color="red">
+          <span class="font-medium">Error! {printError}</span>
+        </Alert>
+      </div>
+    {:else if printSuccess}
+      <Alert color="green">
+        <span class="font-medium"> { printSuccess }</span>
+      </Alert>
+    {/if}
     <Button onclick={ async () => { 
       await submitPrint()
     }}>Print Single Barcode</Button>
