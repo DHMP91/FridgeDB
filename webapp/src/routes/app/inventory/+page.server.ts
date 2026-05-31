@@ -2,6 +2,7 @@ import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { ItemModel } from '$lib/server/model/item'
 import type { NewItem, Item } from '$lib/server/db/item.schema'
+import { NiimbotPrinterInst } from '$lib/server/printer/niimbot/niimbot-printer';
 
 export async function load() {
 	const items = await ItemModel.getAllItems();
@@ -139,6 +140,32 @@ export const actions: Actions = {
 			return fail(422, {
 				description: errMsg ,
 				error: "Error updating item quantity",
+			});
+		}
+	},
+	printBarcode: async (event) => {
+		const formData = await event.request.formData();
+		if(formData === null || formData === undefined) { 
+			return fail(422, {
+				description: "Form data is null or undefined",
+				error: "No form data"
+			})
+		};
+		if( formData.get('barcodeBase64') === null  ) { 
+			return fail(422, {
+				description: "One of the following required field is missing: barcodeBase64",
+				error: "Missing required field",
+			})
+		};
+		try {
+			const image = formData.get('barcodeBase64')!.toString()
+			NiimbotPrinterInst.enqueue(image)
+			return { message: `Successfully Printed Barcode!`}
+		} catch ( error ) {
+			const errMsg = error instanceof Error ? error.message : String(error)
+			return fail(422, {
+				description: errMsg ,
+				error: "Error printing barcode",
 			});
 		}
 	}

@@ -1,7 +1,10 @@
 <script  lang="ts">
     import { Button, Modal } from "flowbite-svelte"; // Generic
     import { type BarcodeType, type ItemType } from "$lib/types/item";
+    // import type { Attachment } from 'svelte/attachments';
     import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
+    import JsBarcode from "jsbarcode";
+    import { nanoid } from 'nanoid';
 
     let { 
         selectedItem = $bindable<ItemType>(),
@@ -15,13 +18,95 @@
         setOpenModal: (value: boolean) => void
     }>();
 
+
+
+    const submitPrint = async () => {
+        const barcodePrefix = selectedItem.barcodePrefix
+        const nanoid3 = nanoid(3);
+        const barcode = `${barcodePrefix}-${nanoid3}-0`
+        const canvas = document.createElement("canvas");
+        canvas.width = 591;
+        canvas.height = 354;
+
+        // Draw barcode first
+        JsBarcode(
+          canvas,
+          barcode,
+          {
+            format: "CODE128",
+            width: 2,
+            height: 100,
+            marginTop: 80,
+            marginBottom: 0,
+            marginLeft: 0,
+            marginRight: 0,
+            displayValue: true
+          }
+        );
+
+        // Then draw text
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.font = "20px Arial";
+          ctx.fillStyle = "black";
+          ctx.textAlign = "right"
+          ctx.textBaseline = "top";
+          const dateNow = new Date().toLocaleDateString("en-CA");
+
+          ctx.fillText(selectedItem.name, 0, 10);
+          ctx.fillText(dateNow, 0, 40);
+        }
+
+        const base64 = canvas.toDataURL("image/png").split(",")[1];
+        const formData = new FormData();
+        formData.append("barcodeBase64", base64);
+        await fetch("?/printBarcode", {
+          method: "POST",
+          body: formData
+        });
+    };
+
+    // function attachBarCode(): Attachment {
+    //   return (element) => {
+    //     const canvas = document.createElement("canvas");
+    //     canvas.width = 591;
+    //     canvas.height = 354;
+
+    //     // Draw barcode first
+    //     JsBarcode(canvas, "test-123-123", {
+    //       format: "CODE128",
+    //       width: 2,
+    //       height: 100,
+    //       marginTop: 80,
+    //       marginBottom: 0,
+    //       marginLeft: 0,
+    //       marginRight: 0,
+    //       displayValue: true
+    //     });
+
+    //     // Then draw text
+    //     const ctx = canvas.getContext("2d");
+
+    //     if (ctx) {
+    //       ctx.font = "20px Arial";
+    //       ctx.fillStyle = "black";
+    //       ctx.textAlign = "right"
+    //       ctx.textBaseline = "top";
+
+    //       ctx.fillText("PRODUCT NAME", 0, 0);
+    //       ctx.fillText("TIMESTAMP", 0, 25);
+    //     }
+
+    //     element.appendChild(canvas);
+    //   };
+    // }
+
 </script>
 
 
   <Modal class="flex-1 max-h-4/5" bind:open={openModal} onclose={() => {setOpenModal(false)}}>
     <Button onclick={ async () => { 
-        // await getBarcodes(selectedItem!.id!);
-        // setShowBarcodeDetailModal(true);
+      await submitPrint()
     }}>Print Single Barcode</Button>
     <Button href="/barcode/{selectedItem.id}">Generate Barcode Sheet</Button>
     <div>
@@ -40,4 +125,5 @@
           </TableBody>
       </Table>
     </div>
+    <!-- <div id="barcode_example" {@attach attachBarCode()}></div> -->
   </Modal>
