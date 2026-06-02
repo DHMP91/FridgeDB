@@ -18,13 +18,18 @@ class NiimbotPrinter extends AbstractPrinter {
   }
 
   protected async connect() {
-    const retry_interval = 5000
-    let tries = 5;
+    if(!this.enabled()){
+      console.error("Printer is not configured. Check environment file for NIIMBOT_MODEL, NIMMBOT_MAC_ADDR, NIIMBOT_HTTP_SERVER vars")
+      return false
+    }
+
+    const retry_interval = 2000
+    let tries = 7;
     while(true){
       try {
         if((await this.client.connect()).ok) return true
       } catch ( error ) {
-        logger.debug("Niimbot connect attempt:" + error)
+        logger.debug("Niimbot connect error:" + error)
       }
 
       if ( tries < 0){
@@ -38,17 +43,34 @@ class NiimbotPrinter extends AbstractPrinter {
   }
 
   protected async disconnect() {
-    return (await this.client.disconnect()).ok
+    const retry_interval = 2000
+    let tries = 7;
+    while(true){
+      try {
+        logger.debug("Disconnecting from niimbot printer")
+        if((await this.client.disconnect()).ok) return true
+      } catch ( error ) {
+        logger.debug("Niimbot disconnect error:" + error)
+      }
+
+      if ( tries < 0){
+        logger.error("Could not disconnect to niimbot printer");
+        return false
+      }
+      --tries;
+      logger.info(`Retrying disconnecting printer in ${retry_interval}ms. Remaining Attempts:${tries}`)
+      await new Promise(resolve => setTimeout(resolve, retry_interval));
+    }
   }
 
   protected async print(job: PrintJob): Promise<void> {
-    if(this.enabled()){
-      await this.client.print(job.payload)
+    logger.info(`Printing for job: ${job.name}`)
+    const resp = await this.client.print(job.payload)
+    if(!resp.ok && resp.status === 500){
+      logger.error("Print server error:" + resp.statusText)
     }
   }
 }
-
-
 
 
 export const NiimbotPrinterInst = new NiimbotPrinter()

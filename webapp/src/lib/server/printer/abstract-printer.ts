@@ -1,5 +1,7 @@
 import logger from  '$lib/logging'
+
 export type PrintJob = {
+  name: string,
   payload: string;
 };
 
@@ -9,9 +11,13 @@ export abstract class AbstractPrinter {
 
   public abstract enabled(): boolean;
   
-  public enqueue(payload: string) {
-    this.queue.push({ payload });
+  public enqueue(printJob: PrintJob) {
+    this.queue.push(printJob);
     this.process();
+  }
+
+  public getPendingJobs(){
+     return [...this.queue]; // snapshot of queue
   }
 
   protected abstract connect(): Promise<boolean>
@@ -30,12 +36,13 @@ export abstract class AbstractPrinter {
         if(await this.connect()){
           connected = true
           while (this.queue.length > 0) {
-            const job = this.queue.shift()!;
+            const job = this.queue[0]
             await this.print(job);
+            this.queue.shift();
           }
         }
       } catch (error) {
-        logger.error("Issue encounter while trying to print")
+        logger.error("Issue encountered while trying to print")
         logger.error(error)
       } finally {
         if (connected) {

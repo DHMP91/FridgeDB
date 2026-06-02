@@ -38,18 +38,18 @@
         isLoading = true;
         message = 'Submitting...';
         return async ({ result, update }) => {
-        // 'result' is automatically typed based on your server action's return types
-        if (result.type === 'success') {
-            message = result.data?.message || 'Success!';
-            formElement.reset();
-        } else if (result.type === 'failure') {
-            errorMessage = result.data?.description || 'An error occurred.';
-        }
+          // 'result' is automatically typed based on your server action's return types
+          if (result.type === 'success') {
+              message = result.data?.message || 'Success!';
+              formElement.reset();
+          } else if (result.type === 'failure') {
+              errorMessage = result.data?.description || 'An error occurred.';
+          }
 
-        isLoading = false;
-        initials = ""
-        // 'update()' re-runs load functions to update the page state
-        await update();
+          isLoading = false;
+          initials = ""
+          // 'update()' re-runs load functions to update the page state
+          await update();
         };
     };
 

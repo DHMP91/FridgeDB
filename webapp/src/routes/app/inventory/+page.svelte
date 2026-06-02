@@ -9,13 +9,14 @@
     TableBodyRow
   } from "flowbite-svelte"; // Table Components
   import { Alert , Button, Input } from "flowbite-svelte"; // Generic
-  import { BarcodeOutline } from "flowbite-svelte-icons"; // Icons
+  import { BarcodeOutline, PrinterSolid} from "flowbite-svelte-icons"; // Icons
   import { type BarcodeType, type ItemType } from "$lib/types/item";
   import BarcodeModal from '$lib/ui/component/BarcodeModal.svelte';
   import DeleteItemModal from '$lib/ui/component/DeleteItemModal.svelte';
   import NewItemModal from '$lib/ui/component/NewItemModal.svelte';
   import SelectedRowDetail from '$lib/ui/component/SelectedRowDetail.svelte';
 	import EditItemModal from '$lib/ui/component/EditItemModal.svelte';
+	import type { PrintJob } from '$lib/server/printer/abstract-printer.js';
 
   // Load data
   let { data } = $props();
@@ -31,8 +32,12 @@
   let openRow = $state();
   let selectedId: number | undefined = $state();
   const selectedItem = $derived(items.find((item) => item.id === selectedId));
-  $effect(() => { items = data.items })
 
+  // PrintJobs
+  let printJobs: PrintJob[] = $state([]);
+  $effect(() => {
+    printJobs = data.printerInfo.printJobs ;
+  })
 
   // Modal: Barcodes
   let itemBarcodes: BarcodeType[]= $state([]);
@@ -65,25 +70,45 @@
       openDeleteModal = false
       selectedId = undefined
       invalidateAll()
+      setTimeout(() => {
+          deleteErrorMessage = ""
+          deleteMessage = ""
+      }, 8000);
   }
 </script>
 
 <main class="flex-1 w-full">
-  <header class="h-8 flex items-center bg-white">
-    <h1 class="text-lg font-semibold text-gray-500 pr-10 ">Inventory</h1>
-      <div class="max-w-100 mt-5 mb-5">
-        {#if deleteErrorMessage}
-          <Alert color="red">
-            <span class="font-medium">Error! {deleteErrorMessage}</span>
-          </Alert>
-        {:else if deleteMessage}
-          <Alert color="green">
-            <span class="font-medium"> { deleteMessage }</span>
-          </Alert>
+  <header class="relative h-12 flex items-center bg-white px-4">
+    <h1 class="text-lg font-semibold text-gray-500">
+      Inventory
+    </h1>
+
+    <!-- Alert stays in normal flow -->
+    <div class="ml-6 flex-1">
+      {#if deleteErrorMessage}
+        <Alert color="red">
+          <span class="font-medium">Error! {deleteErrorMessage}</span>
+        </Alert>
+      {:else if deleteMessage}
+        <Alert color="green">
+          <span class="font-medium">{deleteMessage}</span>
+        </Alert>
+      {/if}
+    </div>
+
+    <!-- Printer pinned top-right -->
+    <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+      <div class="relative">
+        <PrinterSolid class="h-6 w-6" />
+
+        {#if printJobs.length > 0}
+          <span class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full">
+            {printJobs.length}
+          </span>
         {/if}
       </div>
+    </div>
   </header>
-
   <div class="max-w-100 mt-5 mb-5">
       <Input placeholder="Search by name" bind:value={searchTerm}/>
   </div>

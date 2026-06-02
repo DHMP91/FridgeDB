@@ -14,7 +14,8 @@ terminal_lines = ["", "", ""]
 
 async def barcode_scanner_provider(q_barcode: Queue):
     terminal_line = 0
-    scanner_name = "NT CCD barcode scanner"
+    # scanner_name = "NT CCD barcode scanner" # Using Bluetooth connection
+    scanner_name = "NT USB Keyboard" # Using usb dongle
     scanner_reader = ScannerReader()
     # Loop until device is found
     delay = 1

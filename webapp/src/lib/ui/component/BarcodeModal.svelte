@@ -1,4 +1,6 @@
 <script  lang="ts">
+    import { enhance } from '$app/forms';
+    import type { SubmitFunction } from '@sveltejs/kit';
     import { Button, Modal } from "flowbite-svelte"; // Generic
     import { type BarcodeType, type ItemType } from "$lib/types/item";
     import { Alert } from "flowbite-svelte"; // Generic
@@ -24,10 +26,17 @@
     let printError = $state('');
 
 
-    const submitPrint = async () => {
+    const submitPrint: SubmitFunction  = async ({ formData, cancel}) => {
+        const maxSize = 8
         const barcodePrefix = selectedItem.barcodePrefix
-        const nanoid3 = nanoid(3);
-        const barcode = `${barcodePrefix}-${nanoid3}-0`
+        if(maxSize < barcodePrefix.length){
+          printError = `Prefix is too large for single printers. Max ${maxSize}`
+          cancel()
+          return
+        }
+
+        const nanoidStr = nanoid(maxSize - barcodePrefix.length);
+        const barcode = `${barcodePrefix}-${nanoidStr}`
         const canvas = document.createElement("canvas");
         canvas.width = 591;
         canvas.height = 354;
@@ -37,7 +46,7 @@
           canvas,
           barcode,
           {
-            format: "CODE128",
+            format: "CODE128B",
             width: 2,
             height: 100,
             marginTop: 80,
@@ -62,23 +71,23 @@
         }
 
         const base64 = canvas.toDataURL("image/png").split(",")[1];
-        const formData = new FormData();
+
+        formData.append("name", `Print ${barcodePrefix} for ${selectedItem.name}`);
         formData.append("barcodeBase64", base64);
-        const resp = await fetch("?/printBarcode", {
-          method: "POST",
-          body: formData
-        });
-
-        if(resp.ok) {
-          printSuccess = `Successfully sent ${barcode} for printing`
-        } else {
-          printError = `Issue sending ${barcode} for printing`
-        }
-
-        setTimeout(() => {
-            printSuccess = ""
-            printError = ""
-        }, 5000);
+ 
+        return async ({ result, update }) => {
+          // 'result' is automatically typed based on your server action's return types
+          if (result.type === 'success') {
+              printSuccess = `Successfully sent ${barcode} for printing`
+          } else if (result.type === 'failure') {
+              printError = `Issue sending ${barcode} for printing.\n ${result.data?.error}`
+          }
+          await update();
+          setTimeout(() => {
+              printSuccess = ""
+              printError = ""
+          }, 8000);
+        };
     };
 
     // function attachBarCode(): Attachment {
@@ -131,10 +140,6 @@
         <span class="font-medium"> { printSuccess }</span>
       </Alert>
     {/if}
-    <Button onclick={ async () => { 
-      await submitPrint()
-    }}>Print Single Barcode</Button>
-    <Button href="/barcode/{selectedItem.id}">Generate Barcode Sheet</Button>
     <div>
       <Table>
         <TableHead>
@@ -142,6 +147,12 @@
           <TableHeadCell>Age</TableHeadCell>
         </TableHead>
           <TableBody>
+            {#if itemBarcodes.length == 0}
+              <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b"> 
+                <TableBodyCell>No barcode scanned</TableBodyCell>
+                <TableBodyCell></TableBodyCell>
+              </TableBodyRow>
+            {/if}
             {#each itemBarcodes as barcode (barcode.id)}
               <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b">
                 <TableBodyCell>{barcode.code}</TableBodyCell>
@@ -150,6 +161,18 @@
             {/each}
           </TableBody>
       </Table>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <form method="POST" action="?/printBarcode" use:enhance={submitPrint}>
+        <Button type="submit">
+          Print Single Barcode
+        </Button>
+      </form>
+
+      <Button href={`/barcode/${selectedItem.id}`}>
+        Generate Barcode Sheet
+      </Button>
     </div>
     <!-- <div id="barcode_example" {@attach attachBarCode()}></div> -->
   </Modal>
