@@ -28,7 +28,7 @@ Demo of scanning existing items (consuming/eating workflow)
 
 Demo of Niimbot B1 printer + scanner (Complete workflow of adding item):
 
-[![Niimbot printer and scanning barcode]](https://img.youtube.com/vi/sc4NnObZdcc/0.jpg)](https://youtube.com/shorts/sc4NnObZdcc?feature=share)
+[![Niimbot printer and scanning barcode](https://img.youtube.com/vi/sc4NnObZdcc/0.jpg)](https://youtube.com/shorts/sc4NnObZdcc?feature=share)
 
 Tech:
 - Language: Python
