@@ -49,6 +49,9 @@ class NiimbotPrinter extends AbstractPrinter {
       try {
         logger.debug("Disconnecting from niimbot printer")
         if((await this.client.disconnect()).ok) return true
+        // Wait 3s after disconnect to avoid ble error state 62
+        // When in 62 disconnect state, printer must be restarted
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } catch ( error ) {
         logger.debug("Niimbot disconnect error:" + error)
       }

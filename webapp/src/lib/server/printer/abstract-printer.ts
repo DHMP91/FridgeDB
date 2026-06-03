@@ -28,8 +28,12 @@ export abstract class AbstractPrinter {
     if (this.running) return;
     this.running = true;
 
-    // Not-awaited async "printer worker" to process all print job for in-memory queue
-    // Completes and exit when queue is empty
+    /** Not-awaited async "printer worker" to process all print job for in-memory queue
+    * Completes and exit when queue is empty14
+    * 
+    * There's a race condition where during disconnect and before "running" is set to false that
+    * if print job gets added, it will stay in queue until next trigger.
+    */
     const worker = async () => {
       let connected = false
       try{
