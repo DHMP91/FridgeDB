@@ -27,7 +27,11 @@ class NiimbotPrinter extends AbstractPrinter {
     let tries = 7;
     while(true){
       try {
-        if((await this.client.connect()).ok) return true
+        const response = await this.client.connect()
+        const responseJson = await response.json()
+        if( response.ok || responseJson.error === 'Already connected') {
+          return true
+        }
       } catch ( error ) {
         logger.debug("Niimbot connect error:" + error)
       }

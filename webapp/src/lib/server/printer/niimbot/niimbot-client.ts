@@ -1,6 +1,4 @@
 
-import logger from  '$lib/logging'
-
 export class NiimbotClient {
     baseUrl: string
     model: string
@@ -26,7 +24,6 @@ export class NiimbotClient {
                 })
             }
         );
-        logger.debug("Niimbot connect: " + (await response.json()))
         return response;
     }
 
@@ -41,7 +38,6 @@ export class NiimbotClient {
                 body: JSON.stringify({})
             }
         );
-        logger.debug("Niimbot disconnect: " + (await response.json()))
         return response;
     }
 
@@ -60,7 +56,6 @@ export class NiimbotClient {
                 })
             }
         );
-        logger.debug("Niimbot print: " + (await response.json()))
         return response;
     }
 }
