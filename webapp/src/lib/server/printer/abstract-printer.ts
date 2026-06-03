@@ -1,4 +1,7 @@
 import logger from  '$lib/logging'
+import { Mutex } from 'async-mutex'
+
+const mutex = new Mutex();
 
 export type PrintJob = {
   name: string,
@@ -11,9 +14,9 @@ export abstract class AbstractPrinter {
 
   public abstract enabled(): boolean;
   
-  public enqueue(printJob: PrintJob) {
+  public async enqueue(printJob: PrintJob) {
     this.queue.push(printJob);
-    this.process();
+    await this.process();
   }
 
   public getPendingJobs(){
@@ -24,9 +27,15 @@ export abstract class AbstractPrinter {
   protected abstract print(job: PrintJob): Promise<void>;
   protected abstract disconnect(): Promise<boolean>
 
-  protected process() {
-    if (this.running) return;
-    this.running = true;
+  protected async process() {
+    const release = await mutex.acquire();
+    if (this.running) {
+      release()
+      return;
+    } else {
+      this.running = true; 
+      release()
+    }
 
     /** Not-awaited async "printer worker" to process all print job for in-memory queue
     * Completes and exit when queue is empty14

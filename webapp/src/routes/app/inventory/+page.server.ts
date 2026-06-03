@@ -174,7 +174,7 @@ export const actions: Actions = {
 			const image = formData.get('barcodeBase64')!.toString()
 			const printerInst = await PrinterFactory.getPrinter()
 			if(printerInst) { 
-				printerInst.enqueue({ name, payload: image})
+				await printerInst.enqueue({ name, payload: image})
 				return { message: `Successfully queued barcode for print`}
 			}else {
 				return fail(422, {
