@@ -20,7 +20,7 @@
     let selectedSeaFoodSubCategory: SeaFoodSubCategory =  $state(AllSeaFoodSubCategory[0]);
     let selectedState: ItemState = $state(AllItemStates[0]); 
     let itemName: string = $state("")
-    let barcodeControlledValue = $state(true);
+    let barcodeControlledValue = $state(false);
 
     let initials: string = $state("")
     function createInitialForBarcodePrefix() {

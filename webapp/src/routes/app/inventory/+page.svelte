@@ -32,6 +32,11 @@
   let openRow = $state();
   let selectedId: number | undefined = $state();
   const selectedItem = $derived(items.find((item) => item.id === selectedId));
+  $effect(() => { 
+    const _ = searchTerm;
+    openRow = undefined; 
+    selectedId = undefined 
+  })
 
   // PrintJobs
   let printJobs: PrintJob[] = $state([]);
@@ -58,6 +63,11 @@
   // Modal: New/Edit Item Form
   let openAddItemModal = $state(false);
   let openEditItemModal = $state(false);
+  $effect(() => { 
+    const _ = openAddItemModal || openEditItemModal;
+    openRow = undefined; 
+    selectedId = undefined 
+  })
 
   // Modal: Confirm delete
   let deleteMessage: string | undefined = $state('');
@@ -143,7 +153,7 @@
     </Table>
   </div>
 
-  <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true }}> + </Button>
+  <Button class="absolute inset-e-6 bottom-20" onclick={ () => { openAddItemModal = true; }}> + </Button>
   <NewItemModal
     {openAddItemModal} 
     {existingPrefix} 
