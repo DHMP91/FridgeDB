@@ -2,17 +2,6 @@
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
 ```sh
 # recreate this project
 npx sv@0.13.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:typography,forms" drizzle="database:mysql+mysql:mysql2+docker:no" better-auth="demo:password" --install npm ./
@@ -57,3 +46,82 @@ node --env-file=.env.prod build # deploy on node server
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+
+## Printers
+
+### Niimbot
+Configuring this project using niimbot B1 require installing:
+https://github.com/MultiMote/niimblue-node
+
+
+#### For local CLI (same machine as webapp)
+
+
+Install the dependies and add the bariables ENV file
+```
+npm install -g node-gyp
+npm i -g @mmote/niimblue-node
+```
+
+```
+# NIMBOT PRINTER INFO (only 1 supported right now)
+NIIMBOT_MODEL=""
+NIIMBOT_MAC_ADDR="" 
+```
+
+#### Setting up HTTP server on a linux machine instead 
+
+Add the following info to ENV file
+```
+# NIMBOT PRINTER INFO (only 1 supported right now)
+NIIMBOT_MODEL=""
+NIIMBOT_MAC_ADDR="" 
+NIIMBOT_HTTP_SERVER="IP:PORT" (HTTP OPTION)
+```
+
+On Linux Install niimblue-node
+```
+sudo apt install nodejs npm
+npm install -g node-gyp
+npm install -g @mmote/niimblue-node
+```
+
+Start Server
+```
+niimblue-cli server -h <MACHINE_IP> -p <PORT>  # 0.0.0.0 5000
+```
+
+OR
+
+Create service file /etc/systemd/system/niimblue_server.service
+```
+[Unit]
+Description=Niimblue Node Server
+After=network.target
+
+[Service]
+Type=simple
+User=<USER_NAME>
+WorkingDirectory=/
+ExecStart=niimblue-cli server -h MACHINE_IP -p PORT
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+Register and start service
+```
+sudo systemctl daemon-reload
+sudo systemctl enable niimblue_server.service
+sudo systemctl start niimblue_server.service
+```
+
+
+Debug
+```
+journalctl -u niimblue_server.service -f
+```

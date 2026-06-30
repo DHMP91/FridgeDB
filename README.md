@@ -26,6 +26,10 @@ Demo of scanning existing items (consuming/eating workflow)
 
 [![Scanner consuming barcode](https://img.youtube.com/vi/PBEhlaHHz9Q/0.jpg)](https://www.youtube.com/watch?v=PBEhlaHHz9Q)
 
+Demo of Niimbot B1 printer + scanner (Complete workflow of adding item):
+
+[![Niimbot printer and scanning barcode](https://img.youtube.com/vi/sc4NnObZdcc/0.jpg)](https://youtube.com/shorts/sc4NnObZdcc?feature=share)
+
 Tech:
 - Language: Python
 - Framework: None
@@ -34,6 +38,7 @@ Hardware:
 - Raspberry Pi Zero
 - Waveshare eink 7.5
 - Netum bluetooth scanner 1228BC
+- Niimbot B1 printer
 
 # Webapp
 The webapp is where the core of the fridge tracking logic lives. It controls:

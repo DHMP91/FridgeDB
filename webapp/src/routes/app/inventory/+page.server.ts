@@ -2,11 +2,24 @@ import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { ItemModel } from '$lib/server/model/item'
 import type { NewItem, Item } from '$lib/server/db/item.schema'
+import { PrinterFactory } from '$lib/server/printer/printer-factory';
+import type { PrintJob } from '$lib/server/printer/abstract-printer';
 
 export async function load() {
 	const items = await ItemModel.getAllItems();
+	const printerInst = await PrinterFactory.getPrinter()
+	let printerEnabled = false
+	let printJobs: PrintJob[] = []
+	if(printerInst){
+		printerEnabled = true
+		printJobs = printerInst.getPendingJobs();
+	}
 	return {
-		items
+		items,
+		printerInfo: {
+			printerEnabled,
+			printJobs
+		}
 	};
 }
 
@@ -139,6 +152,41 @@ export const actions: Actions = {
 			return fail(422, {
 				description: errMsg ,
 				error: "Error updating item quantity",
+			});
+		}
+	},
+	printBarcode: async (event) => {
+		const formData = await event.request.formData();
+		if(formData === null || formData === undefined) { 
+			return fail(422, {
+				description: "Form data is null or undefined",
+				error: "No form data"
+			})
+		};
+		if( formData.get('barcodeBase64') === null &&  formData.get('name') === null) { 
+			return fail(422, {
+				description: "One of the following required field is missing: barcodeBase64",
+				error: "Missing required field",
+			})
+		};
+		try {
+			const name = formData.get("name")!.toString()
+			const image = formData.get('barcodeBase64')!.toString()
+			const printerInst = await PrinterFactory.getPrinter()
+			if(printerInst) { 
+				await printerInst.enqueue({ name, payload: image})
+				return { message: `Successfully queued barcode for print`}
+			}else {
+				return fail(422, {
+					description: "No Printer" ,
+					error: "No Printer configured. Check environment config file",
+				});
+			}
+		} catch ( error ) {
+			const errMsg = error instanceof Error ? error.message : String(error)
+			return fail(422, {
+				description: errMsg ,
+				error: "Error queuing barcode for print",
 			});
 		}
 	}

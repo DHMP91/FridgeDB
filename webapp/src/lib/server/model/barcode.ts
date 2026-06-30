@@ -20,6 +20,15 @@ export class BarcodeModel {
         return await db.select().from(barcode).where(eq(barcode.itemId, itemId));
     }
 
+    static async getItemNotConsumedBarcodes(itemId: number) {
+        return await db.select().from(barcode).where(
+            and(
+                eq(barcode.itemId, itemId),
+                eq(barcode.consumed, false)
+            )
+        )
+    }
+
     static async getActiveItemBarcodesCount(itemId: number) {
         return await db.$count(
             barcode,

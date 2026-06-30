@@ -4,7 +4,6 @@ import { building } from '$app/environment';
 import { auth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
-
 const protectedRoutes = ['/app', "/barcode"];
 const protectedAPIRoutes = ["/api/scanner"];
 const handleBetterAuth: Handle = async ({ event, resolve }) => {
