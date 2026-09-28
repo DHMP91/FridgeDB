@@ -2,6 +2,7 @@ import asyncio
 import errno
 import sys
 import logging
+import time
 from asyncio import Queue
 from src.waveshare_epd import epd7in5_V2
 from src.scanner_reader import ScannerReader
@@ -92,10 +93,17 @@ async def print_terminal_lines():
 
         await asyncio.sleep(1)
 
+# pylint: disable=broad-exception-caught
 async def main():
     try:
+        client = AppClient()
         epd = epd7in5_V2.EPD()
         display_instance = Display(epd)
+
+        # Check Server
+        while not client.running:
+            display_instance.display_server_offline()
+            time.sleep(300)
 
         # init empty screen
         display_instance.barcode_update("", "")
@@ -113,5 +121,11 @@ async def main():
         logging.info("ctrl + c:")
         epd7in5_V2.epdconfig.module_exit(cleanup=True) #pylint: disable=no-member
         sys.exit()
+    except Exception:
+        logging.exception("Uncaught exception at main.")
+        logging.info("Restarting scanner in 30s")
+        time.sleep(30)
+        main() #Restart
+
 
 asyncio.run(main())

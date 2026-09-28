@@ -24,6 +24,28 @@ class Display:
         self.__y_axis_inventory_end = self.epd.height - barcode_height
         self.__new_line_spacing = 20
 
+    def display_server_offline(self) -> None:
+        epd = self.epd
+        with Image.new('1', (epd.width, epd.height), 255)  as hi_image:# 255: clear the frame
+            draw = ImageDraw.Draw(hi_image)
+            now = datetime.now()
+            formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            draw.text(
+                (0, 0),
+                'Server is offline... Last checked ' + 
+                formatted_time + '. Re-attempting in a few minutes',
+                font = self.__font18,
+                fill = 0
+            )
+
+            epd.display_Partial(
+                epd.getbuffer(hi_image),
+                0,
+                self.__y_axis_inventory_start,
+                epd.width,
+                self.__y_axis_inventory_end
+            )
+
     def barcode_update(self, code: str, message: str) -> None:
         epd = self.epd
         epd.init_part()
