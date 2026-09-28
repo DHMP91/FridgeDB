@@ -12,14 +12,12 @@
         openRow = $bindable<boolean>(),
         selectedItem = $bindable<ItemType>(), 
         setShowBarcodeDetailModal,
-        getBarcodes,
         setOpenDeleteModal,
         setOpenEditModal
     } = $props<{ 
         openRow: boolean,
         selectedItem: ItemType | undefined, 
         setShowBarcodeDetailModal: (value: boolean) => void,
-        getBarcodes: (id: number) => Promise<void>,
         setOpenDeleteModal: (value: boolean) => void,
         setOpenEditModal: (value: boolean) => void
     }>();
@@ -71,7 +69,6 @@
                         }}><EditOutline class="shrink-0 h-6 w-6" /></Button>
                         {#if selectedItem.barcodeControlled }
                         <Button onclick={ async () => { 
-                            await getBarcodes(selectedItem!.id!);
                             setShowBarcodeDetailModal(true);
                         }}><BarcodeOutline class="shrink-0 h-6 w-6" /></Button>
                         {/if}

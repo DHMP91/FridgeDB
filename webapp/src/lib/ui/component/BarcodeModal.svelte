@@ -6,26 +6,35 @@
     import { Alert } from "flowbite-svelte"; // Generic
     // import type { Attachment } from 'svelte/attachments';
     import { TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, Table } from "flowbite-svelte"; // Table Components
+    import { TrashBinOutline } from "flowbite-svelte-icons"; // Icons
     import JsBarcode from "jsbarcode";
     import { nanoid } from 'nanoid';
 
     let { 
         selectedItem = $bindable<ItemType>(),
-        itemBarcodes = $bindable<BarcodeType[]>(),
+        getBarcodes,
         openModal = $bindable<boolean>(),
         setOpenModal
     } = $props<{ 
         selectedItem: ItemType,
-        itemBarcodes: BarcodeType[],
+        getBarcodes: (id: number) => Promise<BarcodeType[]>,
         openModal: boolean,
         setOpenModal: (value: boolean) => void
     }>();
 
+    let itemBarcodes: BarcodeType[] = $state([]);
+    $effect(() => {
+        if (!selectedItem?.id) {
+            itemBarcodes = [];
+            return;
+        }
+        getBarcodes(selectedItem.id).then((barcodes: BarcodeType[]) => {
+            itemBarcodes = barcodes;
+        });
+    });
 
     let printSuccess = $state('');
     let printError = $state('');
-
-
     const submitPrint: SubmitFunction  = async ({ formData, cancel}) => {
         const maxSize = 8
         const barcodePrefix = selectedItem.barcodePrefix
@@ -90,6 +99,12 @@
         };
     };
 
+    const submitBarcodeConsumed: SubmitFunction  = async () => {
+      return async ({ update }) => {
+          await update();
+        };
+    }
+
     // function attachBarCode(): Attachment {
     //   return (element) => {
     //     const canvas = document.createElement("canvas");
@@ -145,11 +160,13 @@
         <TableHead>
           <TableHeadCell>Code</TableHeadCell>
           <TableHeadCell>Age</TableHeadCell>
+          <TableHeadCell>Action</TableHeadCell>
         </TableHead>
           <TableBody>
             {#if itemBarcodes.length == 0}
               <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b"> 
                 <TableBodyCell>No barcode scanned</TableBodyCell>
+                <TableBodyCell></TableBodyCell>
                 <TableBodyCell></TableBodyCell>
               </TableBodyRow>
             {/if}
@@ -157,6 +174,14 @@
               <TableBodyRow class="bg-gray-50 dark:bg-gray-50 border-gray-50 border-b">
                 <TableBodyCell>{barcode.code}</TableBodyCell>
                 <TableBodyCell>{ Math.floor((Number(new Date()) - Number(new Date(barcode.createdAt))) / (1000 * 60 * 60 * 24))} Days</TableBodyCell>
+                <TableBodyCell> 
+                  <form method="POST" action="?/setBarcodeConsumed" use:enhance={submitBarcodeConsumed}>
+                    <input type="hidden" name="id" value={barcode.id} />
+                    <Button type="submit" class="shrink-0 h-8 w-6" >
+                      <TrashBinOutline/>
+                    </Button>
+                  </form>
+                </TableBodyCell>
               </TableBodyRow>
             {/each}
           </TableBody>

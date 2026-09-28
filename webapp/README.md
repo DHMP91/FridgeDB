@@ -12,29 +12,13 @@ npx sv@0.13.0 create --template minimal --types ts --add prettier eslint vitest=
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-
-# or start on accessible host ip
 npm run dev -- --host
 
 # Create test data on the database
 npx tsx .\src\tests\db\seed.ts\
 ```
 
-## Better Auth 
-Auth 3rd party changes
-
-```sh
-npm run auth:schema
-npm run db:generate
-npm run db:migrate
-npm run db:push
-```
-
-## Building
+## Deploying
 
 To create a production version of your app:
 
@@ -47,6 +31,15 @@ You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
+## Better Auth 
+Auth 3rd party changes
+
+```sh
+npm run auth:schema
+npm run db:generate
+npm run db:migrate
+npm run db:push
+```
 
 ## Printers
 
@@ -54,10 +47,7 @@ You can preview the production build with `npm run preview`.
 Configuring this project using niimbot B1 require installing:
 https://github.com/MultiMote/niimblue-node
 
-
 #### For local CLI (same machine as webapp)
-
-
 Install the dependies and add the bariables ENV file
 ```
 npm install -g node-gyp

@@ -4,6 +4,8 @@ import { ItemModel } from '$lib/server/model/item'
 import type { NewItem, Item } from '$lib/server/db/item.schema'
 import { PrinterFactory } from '$lib/server/printer/printer-factory';
 import type { PrintJob } from '$lib/server/printer/abstract-printer';
+import { BarcodeModel } from '$lib/server/model/barcode';
+    
 
 export async function load() {
 	const items = await ItemModel.getAllItems();
@@ -154,6 +156,25 @@ export const actions: Actions = {
 				error: "Error updating item quantity",
 			});
 		}
+	},
+	setBarcodeConsumed: async (event) => {
+		const formData = await event.request.formData();
+		if(formData === null || formData === undefined) { 
+			return fail(422, {
+				description: "Form data is null or undefined",
+				error: "No form data"
+			})
+		};
+
+		if( formData.get('id') === null) { 
+			return fail(422, {
+				description: "One of the following required field is missing: id",
+				error: "Missing required field",
+			})
+		};
+		const barcodeId: number = Number(formData.get('id'))
+		await BarcodeModel.updateBarcode(barcodeId, {consumed: true})
+		return { message: `Set barcode as consumed.` };
 	},
 	printBarcode: async (event) => {
 		const formData = await event.request.formData();

@@ -45,7 +45,6 @@
   })
 
   // Modal: Barcodes
-  let itemBarcodes: BarcodeType[]= $state([]);
   let showBarcodeDetailModal = $state(false);
   const toggleRow = (i: number) => {
     openRow = openRow === i ? null : i;
@@ -53,11 +52,11 @@
       selectedId = undefined
     }
   }
-  async function getBarcodes (id: number) {
+  async function getBarcodes (id: number): Promise<BarcodeType[]> {
     const res = await fetch(`/api/item/${id}/barcodes`, {
 			method: 'GET'
     });
-    itemBarcodes = await res.json()
+    return await res.json()
 	}
 
   // Modal: New/Edit Item Form
@@ -142,8 +141,7 @@
             </TableBodyRow>
             <SelectedRowDetail 
               openRow = { openRow === i }
-              {selectedItem} 
-              {getBarcodes} 
+              {selectedItem}
               setShowBarcodeDetailModal = {(value: boolean) => { showBarcodeDetailModal = value} } 
               setOpenDeleteModal = {(value: boolean) => openDeleteModal = value}
               setOpenEditModal = {(value: boolean) => openEditItemModal = value}
@@ -169,10 +167,10 @@
     />
   {/if}
 
-  {#if selectedItem && itemBarcodes }
+  {#if selectedItem && selectedItem.barcodeControlled }
     <BarcodeModal
-      {selectedItem} 
-      {itemBarcodes}
+      {selectedItem}
+      {getBarcodes}
       openModal = {showBarcodeDetailModal}
       setOpenModal = { (value: boolean) => { showBarcodeDetailModal = value}}
     />

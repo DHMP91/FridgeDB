@@ -30,11 +30,11 @@
 <Modal form bind:open={openModal}>
 <div>
     <form method="POST" action="?/deleteItem" use:enhance={deleteItem}>
-    <Label for="state" class="py-4">
-        Are you sure you want to delete {selectedItem.name}?
-    </Label>
-    <input type="hidden" name="id" value={selectedItem.id} />
-    <Button type="submit"> Delete it! </Button>
+        <Label for="state" class="py-4">
+            Are you sure you want to delete {selectedItem.name}?
+        </Label>
+        <input type="hidden" name="id" value={selectedItem.id} />
+        <Button type="submit"> Delete it! </Button>
     </form>
 </div>
 </Modal>
