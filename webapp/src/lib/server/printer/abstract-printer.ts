@@ -8,10 +8,12 @@ export type PrintJob = {
   payload: string;
   onPrinted?: () => Promise<void>;
 };
+type PendingPrintJob = Omit<PrintJob, "onPrinted">;
 
 export abstract class AbstractPrinter {
   private queue: PrintJob[] = [];
   private running: boolean = false;
+
 
   public abstract enabled(): boolean;
   
@@ -20,8 +22,9 @@ export abstract class AbstractPrinter {
     await this.process();
   }
 
-  public getPendingJobs(){
-     return [...this.queue]; // snapshot of queue
+  public getPendingJobs(): PendingPrintJob[] {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return this.queue.map(({ onPrinted, ...job }) => job);
   }
 
   protected abstract connect(): Promise<boolean>
