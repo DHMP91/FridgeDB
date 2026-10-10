@@ -124,11 +124,12 @@ async def main():
         logging.info("ctrl + c:")
         epd7in5_V2.epdconfig.module_exit(cleanup=True) #pylint: disable=no-member
         sys.exit()
-    except Exception:
-        logging.exception("Uncaught exception at main.")
-        logging.info("Restarting scanner in 30s")
-        time.sleep(30)
-        main() #Restart
 
 
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except Exception:
+    logging.exception("Uncaught exception at main.")
+    logging.info("Restarting scanner in 30s")
+    time.sleep(30)
+    asyncio.run(main()) #Restart

@@ -22,18 +22,18 @@ export async function POST({ request }) {
                 itemId: item.id
             } 
             await BarcodeModel.createBarcode(newBarCode)
-            return json({ message: `Barcode created for ${item.name}!` }, { status: 201 });
+            return json({ message: `Barcode created for ${item.name}! ${item.quantity} in stock` }, { status: 201 });
         } else if (!target.consumed) {
             // Consumed barcode
             await BarcodeModel.updateBarcode(target.id, {consumed: true})
-            return json({ message: `Setting barcode as consumed for ${item.name}!` }, { status: 200 });
+            return json({ message: `Consumed ${item.name}! ${item.quantity} in stock` }, { status: 200 });
         } else if (target.consumed && force ) {
             // Force re-add barcode
             await BarcodeModel.updateBarcode(target.id, {consumed: false})
-            return json({ message: `Resetting barcode as not consumed for ${item.name}!` }, { status: 200 });
+            return json({ message: `Re-adding ${item.name}! ${item.quantity} in stock` }, { status: 200 });
         } else {
             // Already used barcode
-            return json({ message: `Bar code already consumed for ${item.name}!` }, { status: 410 });
+            return json({ message: `Barcode already used for ${item.name}! ${item.quantity} in stock` }, { status: 410 });
         }
     } catch ( error ) {
         return json({ error }, { status: 500 });
