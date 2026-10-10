@@ -15,7 +15,7 @@
         setOpenModal: (value: boolean) => void
     }>();
 
-    let selectedCategory: ItemCategory =  $state(AllItemCategories[0]);
+    let selectedCategory: ItemCategory =  $state("meal");
     let selectedMeatSubCategory: MeatSubCategory =  $state(AllMeatSubCategory[0]);
     let selectedSeaFoodSubCategory: SeaFoodSubCategory =  $state(AllSeaFoodSubCategory[0]);
     let selectedState: ItemState = $state(AllItemStates[0]); 
@@ -59,6 +59,112 @@
             prefixError = true
         }else{
             prefixError = false
+        }
+
+        const lowerCaseName = itemName.toLocaleLowerCase();
+        type MeatSubCategory = (typeof AllMeatSubCategory)[number];
+        type SeafoodSubCategory = (typeof AllSeaFoodSubCategory)[number];
+        type FoodCategory = (typeof AllItemCategories)[number];
+
+        const meatTerms: Record<MeatSubCategory, string[]> = {
+            beef: ["beef", "steak", "brisket", "brisk", "veal", "boeuf", "bœuf", "veau"],
+            porc: ["pork", "porc", "pig", "porkchop", "bacon", "ham", "prosciutto", "pancetta", "guanciale", "jambon"],
+            duck: ["duck", "canard"],
+            lamb: ["lamb", "agneau", "mutton", "sheep", "mouton"],
+            chicken: ["chicken", "poulet", "hen", "poultry", "coq", "volaille"]
+        };
+
+        const seafoodTerms: Record<SeafoodSubCategory, string[]> = {
+            fish: [
+                "fish", "salmon", "tuna", "trout", "cod", "haddock", "halibut",
+                "sardine", "anchovy", "mackerel", "tilapia", "bass", "sole",
+                "poisson", "saumon", "thon", "truite", "morue", "aiglefin",
+                "flétan", "anchois", "maquereau"
+            ],
+            shellfish: [
+                "shellfish", "shrimp", "prawn", "crab", "lobster", "crayfish",
+                "clam", "mussel", "oyster", "scallop", "squid", "octopus",
+                "langoustine", "crevette", "crabe", "homard", "écrevisse",
+                "palourde", "moule", "huître", "pétoncle", "calmar", "poulpe"
+            ]
+        };
+
+        const categoryTerms: Record<Exclude<FoodCategory, "meat" | "seafood">, string[]> = {
+            fruit: [
+                "apple", "banana", "orange", "lemon", "lime", "strawberry",
+                "blueberry", "raspberry", "grape", "watermelon", "melon",
+                "mango", "pineapple", "pear", "peach", "plum",
+                "pomme", "banane", "citron", "fraise", "framboise", "raisin",
+                "pastèque", "mangue", "ananas", "poire", "pêche", "prune"
+            ],
+            vegetable: [
+                "vegetable", "carrot", "potato", "onion", "tomato", "broccoli",
+                "cauliflower", "cabbage", "lettuce", "spinach", "celery",
+                "cucumber", "pepper", "zucchini", "eggplant", "mushroom",
+                "corn", "asparagus", "radish", "turnip",
+                "carotte", "pomme de terre", "oignon", "tomate", "chou",
+                "épinard", "céleri", "concombre", "poivron", "courgette",
+                "aubergine", "champignon", "maïs"
+            ],
+            ingredient: [
+                "garlic", "ginger", "salt", "pepper", "sugar", "flour",
+                "oil", "vinegar", "spice", "spices", "herb", "herbs",
+                "basil", "parsley", "cilantro", "thyme", "rosemary",
+                "cinnamon", "paprika", "cumin", "oregano", "mustard",
+                "ail", "gingembre", "sel", "sucre", "farine", "huile",
+                "vinaigre", "épice", "épices", "basilic", "persil",
+                "coriandre", "thym", "romarin", "cannelle", "moutarde"
+            ],
+            dairy: [
+                "milk", "cheese", "butter", "cream", "yogurt", "yoghurt",
+                "whipping cream", "sour cream", "cottage cheese", "cream cheese",
+                "mozzarella", "cheddar", "parmesan", "brie", "gouda",
+                "lait", "fromage", "beurre", "crème", "yogourt", "yaourt",
+                "crème fouettée", "crème sure", "fromage cottage",
+                "fromage à la crème"
+            ],
+            meal: []
+        };
+
+        let detected = false;
+
+        // Detect meat
+        for (const [subcategory, terms] of Object.entries(meatTerms) as [MeatSubCategory, string[]][]) {
+            if (terms.some(term => lowerCaseName.includes(term))) {
+                selectedCategory = "meat";
+                selectedMeatSubCategory = subcategory;
+                selectedState = "raw";
+                detected = true;
+                break;
+            }
+        }
+
+        // Detect seafood only if no meat match was found
+        if (!detected) {
+            for (const [subcategory, terms] of Object.entries(seafoodTerms) as [SeafoodSubCategory, string[]][]) {
+                if (terms.some(term => lowerCaseName.includes(term))) {
+                    selectedCategory = "seafood";
+                    selectedSeaFoodSubCategory = subcategory;
+                    selectedState = "raw";
+                    detected = true;
+                    break;
+                }
+            }
+        }
+
+        // Detect fruit, vegetable, or ingredient
+        if (!detected) {
+            for (const [category, terms] of Object.entries(categoryTerms) as [Exclude<FoodCategory, "meat" | "seafood">, string[]][]) {
+                if (terms.some(term => lowerCaseName.includes(term))) {
+                    selectedCategory = category;
+                    // detected = true;
+                    break;
+                }
+            }
+        }
+
+        if(selectedCategory.toLowerCase() === "meal"){
+          selectedState = "cooked"
         }
     });
 </script>
