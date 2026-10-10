@@ -4,16 +4,7 @@ import type { Item, NewItem } from "$lib/server/db/schema.js"
 import { eq, sql} from "drizzle-orm";
 
 export class ItemModel {
-    static async createItem (newItem: NewItem) {
-        return db.insert(item).values(newItem);
-    }
-
-    static async deleteItem (id: number) {
-        return db.delete(item).where(eq(item.id, id))
-    }
-
-    static async getAllItems() {
-        const barcodeCounts = db
+    static barcodeCountsQuery = db
             .select({
                 itemId: barcode.itemId,
                 quantity: sql<number>`COUNT(${barcode.id})`.as("quantity")
@@ -23,7 +14,8 @@ export class ItemModel {
             .groupBy(barcode.itemId)
             .as("barcode_counts");
 
-        const result = await db
+    static getItemQuery() {
+        return db
             .select({
                 id: item.id,
                 name: item.name,
@@ -34,32 +26,43 @@ export class ItemModel {
                 barcodeControlled: item.barcodeControlled,
                 barcodePrefix: item.barcodePrefix,
                 createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+                image: item.image,
                 quantity: sql<number>`
-                CASE 
-                    WHEN ${item.barcodeControlled} THEN COALESCE(${sql`barcode_counts.quantity`}, 0)
-                    ELSE ${item.quantity}
-                END
+                    CASE
+                        WHEN ${item.barcodeControlled}
+                        THEN COALESCE(${sql`barcode_counts.quantity`}, 0)
+                        ELSE ${item.quantity}
+                    END
                 `.as("quantity"),
             })
             .from(item)
             .leftJoin(
-                barcodeCounts,
-                eq(barcodeCounts.itemId, item.id)
+                ItemModel.barcodeCountsQuery,
+                eq(ItemModel.barcodeCountsQuery.itemId, item.id)
             );
-        return result
+    }
+
+    static async createItem (newItem: NewItem) {
+        return db.insert(item).values(newItem);
+    }
+
+    static async deleteItem (id: number) {
+        return db.delete(item).where(eq(item.id, id))
+    }
+
+    static async getAllItems() {
+        return this.getItemQuery()
     }
 
     static async getItemById(id: number) {
-        const records = await db
-            .select()
-            .from(item)
-            .where(eq(item.id, id))
-        return records.length === 0 ? undefined : records[0]
+        const [record] = await this.getItemQuery().where(eq(item.id, id))
+        return record
     }
 
     static async getItemByBarcodePrefix (prefix: string): Promise<Item | undefined> {
-        const records = await db.select().from(item).where(eq(item.barcodePrefix, prefix))
-        return records.length === 0 ? undefined : records[0]
+        const [record] = await this.getItemQuery().where(eq(item.barcodePrefix, prefix))
+        return record
     }
 
     static async updateItem(id: number, updateItem: Partial<Item>) {
