@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 class Display:
     __pic_dir = os.path.dirname(pic.__file__)
     __font18 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 18)
+    __font20 = ImageFont.truetype(os.path.join(__pic_dir, 'Font.ttc'), 20)
 
     def __init__(self, epd: epd7in5_V2.EPD) -> None:
         self.epd = epd
@@ -103,14 +104,17 @@ class Display:
                 if len(items) - 1 < i:
                     cell_content = "|"
                 else:
+                    focus = items[i].get("focus", False) is True
                     quantity_str = str(items[i]["quantity"]).zfill(2)
                     short_name = items[i]["name"][:14]
+                    if focus:
+                        short_name = items[i]["name"][:12]
                     cell_content = f'| {quantity_str} | {short_name}'
 
                 draw.text(
                     (column, start_line),
                     cell_content,
-                    font = self.__font18,
+                    font =  self.__font20 if focus else self.__font18,
                     fill = 0
                 )
                 start_line += self.__new_line_spacing
