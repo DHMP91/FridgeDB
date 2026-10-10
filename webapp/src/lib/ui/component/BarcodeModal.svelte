@@ -83,6 +83,8 @@
 
         formData.append("name", `Print ${barcodePrefix} for ${selectedItem.name}`);
         formData.append("barcodeBase64", base64);
+        formData.append("barcode", barcode);
+        formData.append("itemId", selectedItem.id);
  
         return async ({ result, update }) => {
           // 'result' is automatically typed based on your server action's return types

@@ -6,6 +6,7 @@ const mutex = new Mutex();
 export type PrintJob = {
   name: string,
   payload: string;
+  onPrinted?: () => Promise<void>;
 };
 
 export abstract class AbstractPrinter {
@@ -51,6 +52,9 @@ export abstract class AbstractPrinter {
           while (this.queue.length > 0) {
             const job = this.queue[0]
             await this.print(job);
+            await job.onPrinted?.().catch((error: unknown) => { 
+              logger.error(`Issue encountered running callback fun after print: ${String(error)}`)
+            });
             this.queue.shift();
           }
         }

@@ -5,7 +5,7 @@ import type { NewItem, Item } from '$lib/server/db/item.schema'
 import { PrinterFactory } from '$lib/server/printer/printer-factory';
 import type { PrintJob } from '$lib/server/printer/abstract-printer';
 import { BarcodeModel } from '$lib/server/model/barcode';
-    
+import type { NewBarcode } from "$lib/server/db/schema.js"
 
 export async function load() {
 	const items = await ItemModel.getAllItems();
@@ -184,7 +184,7 @@ export const actions: Actions = {
 				error: "No form data"
 			})
 		};
-		if( formData.get('barcodeBase64') === null &&  formData.get('name') === null) { 
+		if( formData.get('barcodeBase64') === null && formData.get('name') === null && formData.get('barcode') === null && formData.get('itemId') === null) { 
 			return fail(422, {
 				description: "One of the following required field is missing: barcodeBase64",
 				error: "Missing required field",
@@ -193,9 +193,22 @@ export const actions: Actions = {
 		try {
 			const name = formData.get("name")!.toString()
 			const image = formData.get('barcodeBase64')!.toString()
+			const barcode = formData.get('barcode')!.toString()
+			const itemId = Number.parseInt(formData.get('itemId')!.toString())
 			const printerInst = await PrinterFactory.getPrinter()
 			if(printerInst) { 
-				await printerInst.enqueue({ name, payload: image})
+				await printerInst.enqueue({ 
+					name, 
+					payload: image,
+					onPrinted: async () => {
+						// Create new barcode when printed
+						const newBarCode: NewBarcode = {
+							code: barcode,
+							itemId
+						} 
+						await BarcodeModel.createBarcode(newBarCode)
+					}
+				})
 				return { message: `Successfully queued barcode for print`}
 			}else {
 				return fail(422, {
