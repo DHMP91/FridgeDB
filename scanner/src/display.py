@@ -101,6 +101,7 @@ class Display:
             column_count = 0
             column = 0
             for i in range(0, item_per_column*columns):
+                focus = False
                 if len(items) - 1 < i:
                     cell_content = "|"
                 else:
