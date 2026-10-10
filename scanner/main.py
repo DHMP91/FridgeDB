@@ -69,6 +69,9 @@ async def barcode_display_consumer(q_barcode: Queue, disp_instance: Display):
         )
         # Update displayed inventory after scan
         items = await client.get_inventory_list()
+        for item in items:
+            if item["barcodePrefix"] == code.split("-")[0]:
+                item["name"] = f'=>{item["name"]}'
         await asyncio.to_thread(disp_instance.display_inventory, items)
 
 async def display_inventory(disp_instance: Display):
