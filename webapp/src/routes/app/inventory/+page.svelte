@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
   import { 
     Table,
@@ -20,6 +21,14 @@
 
   // Load data
   let { data } = $props();
+  onMount(() => {
+        // Refresh server $props data every 1s
+        const interval = setInterval(() => {
+            invalidateAll();
+        }, 1000);
+        return () => clearInterval(interval);
+  });
+  
   let items: ItemType[] = $state([])
   $effect(() => { items = data.items })
   const existingPrefix: string[] = $derived(
