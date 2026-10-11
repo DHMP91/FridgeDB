@@ -22,15 +22,19 @@
         setOpenModal: (value: boolean) => void
     }>();
 
+    const refreshBarcodes = () => {
+        getBarcodes(selectedItem.id).then((barcodes: BarcodeType[]) => {
+            itemBarcodes = barcodes;
+        });
+    }
+
     let itemBarcodes: BarcodeType[] = $state([]);
     $effect(() => {
         if (!selectedItem?.id) {
             itemBarcodes = [];
             return;
         }
-        getBarcodes(selectedItem.id).then((barcodes: BarcodeType[]) => {
-            itemBarcodes = barcodes;
-        });
+        refreshBarcodes();
     });
 
     let printSuccess = $state('');
@@ -97,13 +101,15 @@
           setTimeout(() => {
               printSuccess = ""
               printError = ""
-          }, 8000);
+              refreshBarcodes();
+          }, 2000);
         };
     };
 
     const submitBarcodeConsumed: SubmitFunction  = async () => {
       return async ({ update }) => {
           await update();
+          refreshBarcodes();
         };
     }
 

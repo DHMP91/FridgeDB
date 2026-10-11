@@ -62,11 +62,6 @@
   // Modal: New/Edit Item Form
   let openAddItemModal = $state(false);
   let openEditItemModal = $state(false);
-  $effect(() => { 
-    const _ = openAddItemModal || openEditItemModal;
-    openRow = undefined; 
-    selectedId = undefined 
-  })
 
   // Modal: Confirm delete
   let deleteMessage: string | undefined = $state('');
