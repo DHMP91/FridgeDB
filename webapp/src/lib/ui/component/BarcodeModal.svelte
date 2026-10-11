@@ -27,14 +27,20 @@
             itemBarcodes = barcodes;
         });
     }
-
+    let refreshInterval: NodeJS.Timeout | undefined = undefined;
     let itemBarcodes: BarcodeType[] = $state([]);
     $effect(() => {
         if (!selectedItem?.id) {
             itemBarcodes = [];
+            if (refreshInterval) {
+              clearInterval(refreshInterval)
+              refreshInterval = undefined
+            }
             return;
         }
-        refreshBarcodes();
+        refreshInterval = setInterval(() => {
+            refreshBarcodes();
+        }, 2000);
     });
 
     let printSuccess = $state('');
@@ -101,8 +107,7 @@
           setTimeout(() => {
               printSuccess = ""
               printError = ""
-              refreshBarcodes();
-          }, 2000);
+          }, 3500);
         };
     };
 
